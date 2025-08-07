@@ -18,6 +18,10 @@ export const ErrorMessages = {
     NOT_FOUND: () => `Serviço não encontrado`,
     ALREADY_EXISTS: (name: string) => `Serviço com nome ${name} já existe`,
   },
+  PART: {
+    NOT_FOUND: () => `Peça não encontrada`,
+    ALREADY_EXISTS: (name: string) => `Peça com nome ${name} já existe`,
+  },
   WORK_ORDER: {
     NOT_FOUND: (id: number) => `Ordem de serviço com ID ${id} não encontrada`,
     INVALID_STATUS: (status: string) =>
