@@ -22,7 +22,7 @@ export class AuthService {
     email: string,
     password: string,
   ): Promise<AuthUser | null> {
-    const user = await this.userRepository.findByEmail(email)
+    const user = await this.userRepository.findByEmailAndPassword(email)
 
     if (user && (await bcrypt.compare(password, user.password))) {
       return {
