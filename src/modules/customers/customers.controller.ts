@@ -18,6 +18,7 @@ import { CreateCustomerDto } from './dto/create-customer.dto'
 import { UpdateCustomerDto } from './dto/update-customer.dto'
 import { Customer } from './entities/customer.entity'
 import { CustomersService } from './customers.service'
+import { CustomerResponseDto } from './dto/customer-response.dto'
 
 @ApiBearerAuth('Bearer')
 @ApiTags('customers')
@@ -30,9 +31,11 @@ export class CustomersController {
   @ApiResponse({
     status: 201,
     description: 'Customer created successfully',
-    type: Customer,
+    type: CustomerResponseDto,
   })
-  create(@Body() createCustomerDto: CreateCustomerDto): Promise<Customer> {
+  create(
+    @Body() createCustomerDto: CreateCustomerDto,
+  ): Promise<CustomerResponseDto> {
     return this.customersService.create(createCustomerDto)
   }
 
@@ -41,17 +44,21 @@ export class CustomersController {
   @ApiResponse({
     status: 200,
     description: 'List of customers',
-    type: [Customer],
+    type: [CustomerResponseDto],
   })
-  findAll(): Promise<Customer[]> {
+  findAll(): Promise<CustomerResponseDto[]> {
     return this.customersService.findAll()
   }
 
   @Get(':id')
   @ApiOperation({ summary: 'Get a customer by id' })
-  @ApiResponse({ status: 200, description: 'Customer found', type: Customer })
+  @ApiResponse({
+    status: 200,
+    description: 'Customer found',
+    type: CustomerResponseDto,
+  })
   @ApiResponse({ status: 404, description: 'Customer not found' })
-  findOne(@Param('id', ParseIntPipe) id: number): Promise<Customer> {
+  findOne(@Param('id', ParseIntPipe) id: number): Promise<CustomerResponseDto> {
     return this.customersService.findOne(id)
   }
 
@@ -60,21 +67,13 @@ export class CustomersController {
   @ApiResponse({
     status: 200,
     description: 'Customer updated successfully',
-    type: Customer,
+    type: CustomerResponseDto,
   })
   @ApiResponse({ status: 404, description: 'Customer not found' })
   update(
     @Param('id', ParseIntPipe) id: number,
     @Body() updateCustomerDto: UpdateCustomerDto,
-  ): Promise<Customer> {
+  ): Promise<CustomerResponseDto> {
     return this.customersService.update(id, updateCustomerDto)
-  }
-
-  @Delete(':id')
-  @ApiOperation({ summary: 'Delete a customer' })
-  @ApiResponse({ status: 200, description: 'Customer deleted successfully' })
-  @ApiResponse({ status: 404, description: 'Customer not found' })
-  remove(@Param('id', ParseIntPipe) id: number): Promise<void> {
-    return this.customersService.remove(id)
   }
 }

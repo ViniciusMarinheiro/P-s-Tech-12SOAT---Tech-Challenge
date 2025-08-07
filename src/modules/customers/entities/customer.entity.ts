@@ -6,6 +6,8 @@ import {
   UpdateDateColumn,
   OneToMany,
 } from 'typeorm'
+import { Vehicle } from '../../vehicles/vehicle.entity'
+import { WorkOrder } from '../../work-orders/work-order.entity'
 
 @Entity('customers')
 export class Customer {
@@ -23,10 +25,10 @@ export class Customer {
   })
   documentNumber: string
 
-  @Column({ type: 'varchar', length: 20, nullable: true })
+  @Column({ type: 'varchar', length: 20, nullable: true, unique: true })
   phone: string
 
-  @Column({ type: 'varchar', length: 100 })
+  @Column({ type: 'varchar', length: 100, unique: true })
   email: string
 
   @CreateDateColumn({ name: 'created_at' })
@@ -35,9 +37,9 @@ export class Customer {
   @UpdateDateColumn({ name: 'updated_at' })
   updatedAt: Date
 
-  @OneToMany('Vehicle', 'customer')
-  vehicles: any[]
+  @OneToMany(() => Vehicle, (vehicle) => vehicle.customer)
+  vehicles: Vehicle[]
 
-  @OneToMany('WorkOrder', 'customer')
-  workOrders: any[]
+  @OneToMany(() => WorkOrder, (workOrder) => workOrder.customer)
+  workOrders: WorkOrder[]
 }
