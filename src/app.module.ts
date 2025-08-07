@@ -13,6 +13,7 @@ import { EnvConfigService } from './common/service/env/env-config.service'
 import { GlobalJwtAuthGuard } from './common/guards/global-jwt-auth.guard'
 import { VehiclesModule } from './modules/vehicles/vehicles.module'
 import { ServicesModule } from './modules/services/services.module'
+import { PartsModule } from './modules/parts/parts.module'
 
 @Module({
   imports: [
@@ -31,7 +32,7 @@ import { ServicesModule } from './modules/services/services.module'
     CustomersModule,
     VehiclesModule,
     ServicesModule,
-    ServicesModule,
+    PartsModule,
   ],
   controllers: [AppController],
   providers: [
