@@ -6,8 +6,6 @@ import {
   UpdateDateColumn,
   OneToMany,
 } from 'typeorm'
-import { Vehicle } from '../../vehicles/vehicle.entity'
-import { WorkOrder } from '../../work-orders/work-order.entity'
 
 @Entity('customers')
 export class Customer {
@@ -37,9 +35,9 @@ export class Customer {
   @UpdateDateColumn({ name: 'updated_at' })
   updatedAt: Date
 
-  @OneToMany(() => Vehicle, (vehicle) => vehicle.customer)
-  vehicles: Vehicle[]
+  @OneToMany('Vehicle', 'customer')
+  vehicles: any[]
 
-  @OneToMany(() => WorkOrder, (workOrder) => workOrder.customer)
-  workOrders: WorkOrder[]
+  @OneToMany('WorkOrder', 'customer')
+  workOrders: any[]
 }

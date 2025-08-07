@@ -6,6 +6,7 @@ import {
   ManyToOne,
   JoinColumn,
   OneToMany,
+  UpdateDateColumn,
 } from 'typeorm'
 
 @Entity('vehicles')
@@ -19,17 +20,20 @@ export class Vehicle {
   @Column({ type: 'varchar', length: 10, unique: true })
   plate: string
 
-  @Column({ type: 'varchar', length: 50, nullable: true })
+  @Column({ type: 'varchar', length: 50 })
   brand: string
 
-  @Column({ type: 'varchar', length: 50, nullable: true })
+  @Column({ type: 'varchar', length: 50 })
   model: string
 
-  @Column({ type: 'int', nullable: true })
+  @Column({ type: 'int' })
   year: number
 
   @CreateDateColumn({ name: 'created_at' })
   createdAt: Date
+
+  @UpdateDateColumn({ name: 'updated_at' })
+  updatedAt: Date
 
   @ManyToOne('Customer', 'vehicles')
   @JoinColumn({ name: 'customer_id' })

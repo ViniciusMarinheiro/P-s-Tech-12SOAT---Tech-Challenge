@@ -11,6 +11,7 @@ import { DatabaseModule } from './config/database/database.module'
 import { CustomersModule } from './modules/customers/customers.module'
 import { EnvConfigService } from './common/service/env/env-config.service'
 import { GlobalJwtAuthGuard } from './common/guards/global-jwt-auth.guard'
+import { VehiclesModule } from './modules/vehicles/vehicles.module'
 
 @Module({
   imports: [
@@ -27,6 +28,7 @@ import { GlobalJwtAuthGuard } from './common/guards/global-jwt-auth.guard'
     DatabaseModule,
     AuthModule,
     CustomersModule,
+    VehiclesModule,
   ],
   controllers: [AppController],
   providers: [
