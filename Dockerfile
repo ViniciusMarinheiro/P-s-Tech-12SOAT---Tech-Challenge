@@ -59,5 +59,5 @@ USER nestjs
 HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
     CMD node -e "require('http').get('http://localhost:3333/api/v1/oficina/status', (res) => { process.exit(res.statusCode === 200 ? 0 : 1) })"
 
-# Comando para iniciar a aplicação
-CMD ["node", "dist/main.js"]
+# Comando para iniciar a aplicação (roda migrations e inicia)
+CMD ["/bin/sh", "-c", "yarn typeorm-ts-node-commonjs migration:run -d src/config/database/data-source.ts && node dist/main.js"]
