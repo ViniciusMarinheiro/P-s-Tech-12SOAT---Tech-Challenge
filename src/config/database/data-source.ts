@@ -1,6 +1,6 @@
 import { DataSource } from 'typeorm'
 import { Customer } from '../../modules/customers/entities/customer.entity'
-import { Vehicle } from '../../modules/vehicles/vehicle.entity'
+import { Vehicle } from '../../modules/vehicles/entities/vehicle.entity'
 import { Service } from '../../modules/services/service.entity'
 import { Part } from '../../modules/parts/part.entity'
 import { WorkOrder } from '../../modules/work-orders/work-order.entity'
