@@ -8,6 +8,7 @@ import { CreateUserDto } from '../dto/create-user.dto'
 import { UserResponseDto } from '../dto/user-response.dto'
 import { CustomException } from '@/common/exceptions/customException'
 import { ErrorMessages } from '@/common/constants/errorMessages'
+import { UserResponsePasswordDto } from '../dto/user-response-password.dto'
 
 @Injectable()
 export class UserRepository extends UserRepositoryPort {
@@ -19,6 +20,13 @@ export class UserRepository extends UserRepositoryPort {
   }
 
   async findByEmail(email: string): Promise<UserResponseDto | null> {
+    const user = await this.repository.findOne({ where: { email } })
+    return user
+  }
+
+  async findByEmailAndPassword(
+    email: string,
+  ): Promise<UserResponsePasswordDto | null> {
     const user = await this.repository.findOne({ where: { email } })
     return user
   }
