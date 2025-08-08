@@ -97,7 +97,6 @@ export class WorkOrdersService {
     id: number,
     updateWorkOrderDto: UpdateWorkOrderDto,
   ): Promise<void> {
-    // Buscar a ordem atual com todas as relações
     const currentWorkOrder = await this.workOrderRepository.findById(id)
     if (!currentWorkOrder) {
       throw new CustomException(
@@ -106,14 +105,12 @@ export class WorkOrdersService {
       )
     }
 
-    // Validar que só pode editar se status for RECEIVED
     if (currentWorkOrder.status !== WorkOrderStatusEnum.RECEIVED) {
       throw new CustomException(
         'Apenas ordens com status RECEIVED podem ser editadas',
       )
     }
 
-    // Gerenciar estoque de peças se houver mudanças
     if (updateWorkOrderDto.parts) {
       await this.managePartsStock(
         id,
@@ -122,7 +119,6 @@ export class WorkOrdersService {
       )
     }
 
-    // Atualizar serviços e peças
     if (updateWorkOrderDto.services) {
       await this.updateWorkOrderServices(id, updateWorkOrderDto.services)
     }
@@ -131,14 +127,12 @@ export class WorkOrdersService {
       await this.updateWorkOrderParts(id, updateWorkOrderDto.parts)
     }
 
-    // Recalcular valor total
     await this.recalculateTotalAmount(id)
 
     await this.findById(id)
   }
 
   async delete(id: number): Promise<void> {
-    // Verificar se a ordem existe
     await this.findById(id)
 
     return this.workOrderRepository.delete(id)
