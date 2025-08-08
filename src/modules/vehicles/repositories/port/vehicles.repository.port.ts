@@ -17,7 +17,6 @@ export abstract class VehiclesRepositoryPort {
 
   abstract exists(
     plate?: string,
-    customerId?: number,
     id?: number,
   ): Promise<{ exists: boolean; field?: string; value?: string }>
 }

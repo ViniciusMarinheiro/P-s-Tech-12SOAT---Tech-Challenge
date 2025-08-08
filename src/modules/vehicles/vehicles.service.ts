@@ -5,10 +5,14 @@ import { VehiclesRepositoryPort } from './repositories/port/vehicles.repository.
 import { VehiclesResponseDto } from './dto/vehicles-response.dto'
 import { CustomException } from '@/common/exceptions/customException'
 import { ErrorMessages } from '@/common/constants/errorMessages'
+import { CustomersService } from '../customers/customers.service'
 
 @Injectable()
 export class VehiclesService {
-  constructor(private readonly vehiclesRepository: VehiclesRepositoryPort) {}
+  constructor(
+    private readonly vehiclesRepository: VehiclesRepositoryPort,
+    private readonly customersService: CustomersService,
+  ) {}
 
   async create(
     createVehiclesDto: CreateVehiclesDto,
@@ -50,21 +54,21 @@ export class VehiclesService {
     customerId?: number,
     id?: number,
   ): Promise<void> {
-    const existsCheck = await this.vehiclesRepository.exists(
-      plate,
-      customerId,
-      id,
-    )
+    const existsCheck = await this.vehiclesRepository.exists(plate, id)
+
+    if (customerId) {
+      const customerExists = await this.customersService.findOne(customerId)
+      if (!customerExists) {
+        throw new CustomException(ErrorMessages.CUSTOMER.NOT_FOUND(customerId))
+      }
+    }
 
     if (existsCheck.exists) {
-      const fieldName =
+      throw new CustomException(
         existsCheck.field === 'plate'
           ? 'Placa já está sendo usada'
-          : existsCheck.field === 'customerId'
-            ? 'Cliente não encontrado'
-            : 'Cliente não encontrado'
-
-      throw new CustomException(fieldName)
+          : 'Cliente não encontrado',
+      )
     }
   }
 }

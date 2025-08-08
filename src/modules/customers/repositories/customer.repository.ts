@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common'
 import { InjectRepository } from '@nestjs/typeorm'
-import { Not, Repository } from 'typeorm'
+import { Like, Not, Repository } from 'typeorm'
 import { Customer } from '../entities/customer.entity'
 import { CreateCustomerDto } from '../dto/create-customer.dto'
 import { UpdateCustomerDto } from '../dto/update-customer.dto'
@@ -31,6 +31,14 @@ export class CustomerRepository extends CustomerRepositoryPort {
 
   async findOne(id: number): Promise<CustomerResponseDto | null> {
     return await this.repository.findOne({ where: { id } })
+  }
+
+  async findOneByDocument(
+    document: string,
+  ): Promise<CustomerResponseDto | null> {
+    return await this.repository.findOne({
+      where: { documentNumber: Like(`%${document}%`) },
+    })
   }
 
   async findByEmail(email: string): Promise<CustomerResponseDto | null> {
