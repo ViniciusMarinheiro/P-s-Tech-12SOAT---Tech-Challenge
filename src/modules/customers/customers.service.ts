@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common'
+import { HttpStatus, Injectable } from '@nestjs/common'
 import { CreateCustomerDto } from './dto/create-customer.dto'
 import { UpdateCustomerDto } from './dto/update-customer.dto'
 import { CustomerRepositoryPort } from './repositories/port/customer.repository.port'
@@ -25,6 +25,17 @@ export class CustomersService {
     const customer = await this.customerRepository.findOne(id)
     if (!customer) {
       throw new CustomException(ErrorMessages.CUSTOMER.NOT_FOUND(id))
+    }
+    return customer
+  }
+
+  async findOneByDocument(document: string): Promise<CustomerResponseDto> {
+    const customer = await this.customerRepository.findOneByDocument(document)
+    if (!customer) {
+      throw new CustomException(
+        ErrorMessages.CUSTOMER.NOT_FOUND_DOCUMENT(document),
+        HttpStatus.NO_CONTENT,
+      )
     }
     return customer
   }

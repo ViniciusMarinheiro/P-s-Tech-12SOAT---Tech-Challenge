@@ -21,25 +21,61 @@ export class UserRepository extends UserRepositoryPort {
 
   async findByEmail(email: string): Promise<UserResponseDto | null> {
     const user = await this.repository.findOne({ where: { email } })
-    return user
+    if (!user) return null
+
+    const dto = new UserResponseDto()
+    dto.id = user.id
+    dto.name = user.name
+    dto.email = user.email
+    dto.role = user.role
+    dto.createdAt = user.createdAt
+    dto.updatedAt = user.updatedAt
+    return dto
   }
 
   async findByEmailAndPassword(
     email: string,
   ): Promise<UserResponsePasswordDto | null> {
     const user = await this.repository.findOne({ where: { email } })
-    return user
+    if (!user) return null
+
+    const dto = new UserResponsePasswordDto()
+    dto.id = user.id
+    dto.name = user.name
+    dto.email = user.email
+    dto.password = user.password
+    dto.role = user.role
+    dto.createdAt = user.createdAt
+    dto.updatedAt = user.updatedAt
+    return dto
   }
 
   async findById(id: number): Promise<UserResponseDto | null> {
     const user = await this.repository.findOne({ where: { id } })
-    return user
+    if (!user) return null
+
+    const dto = new UserResponseDto()
+    dto.id = user.id
+    dto.name = user.name
+    dto.email = user.email
+    dto.role = user.role
+    dto.createdAt = user.createdAt
+    dto.updatedAt = user.updatedAt
+    return dto
   }
 
   async create(createUserDto: CreateUserDto): Promise<UserResponseDto> {
     const user = this.repository.create(createUserDto)
     const savedUser = await this.repository.save(user)
-    return savedUser
+
+    const dto = new UserResponseDto()
+    dto.id = savedUser.id
+    dto.name = savedUser.name
+    dto.email = savedUser.email
+    dto.role = savedUser.role
+    dto.createdAt = savedUser.createdAt
+    dto.updatedAt = savedUser.updatedAt
+    return dto
   }
 
   async update(
@@ -53,7 +89,14 @@ export class UserRepository extends UserRepositoryPort {
       throw new CustomException(ErrorMessages.USER.NOT_FOUND(id))
     }
 
-    return updatedUser
+    const dto = new UserResponseDto()
+    dto.id = updatedUser.id
+    dto.name = updatedUser.name
+    dto.email = updatedUser.email
+    dto.role = updatedUser.role
+    dto.createdAt = updatedUser.createdAt
+    dto.updatedAt = updatedUser.updatedAt
+    return dto
   }
 
   async delete(id: number): Promise<void> {
@@ -67,6 +110,16 @@ export class UserRepository extends UserRepositoryPort {
   }
 
   async findAll(): Promise<UserResponseDto[]> {
-    return await this.repository.find()
+    const users = await this.repository.find()
+    return users.map((user) => {
+      const dto = new UserResponseDto()
+      dto.id = user.id
+      dto.name = user.name
+      dto.email = user.email
+      dto.role = user.role
+      dto.createdAt = user.createdAt
+      dto.updatedAt = user.updatedAt
+      return dto
+    })
   }
 }
