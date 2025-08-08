@@ -8,15 +8,12 @@ import { VehiclesResponseDto } from '../dto/vehicles-response.dto'
 import { CustomException } from '@/common/exceptions/customException'
 import { ErrorMessages } from '@/common/constants/errorMessages'
 import { Vehicle } from '../entities/vehicle.entity'
-import { Customer } from '../../customers/entities/customer.entity'
 
 @Injectable()
 export class VehiclesRepository extends VehiclesRepositoryPort {
   constructor(
     @InjectRepository(Vehicle)
     private readonly repository: Repository<Vehicle>,
-    @InjectRepository(Customer)
-    private readonly customerRepository: Repository<Customer>,
   ) {
     super()
   }
@@ -86,7 +83,6 @@ export class VehiclesRepository extends VehiclesRepositoryPort {
 
   async exists(
     plate?: string,
-    customerId?: number,
     id?: number,
   ): Promise<{ exists: boolean; field?: string; value?: string }> {
     if (plate) {
@@ -96,20 +92,6 @@ export class VehiclesRepository extends VehiclesRepositoryPort {
 
       if (existingPlate) {
         return { exists: true, field: 'plate', value: plate }
-      }
-    }
-
-    if (customerId) {
-      const customerExists = await this.customerRepository.findOne({
-        where: { id: customerId },
-      })
-
-      if (!customerExists) {
-        return {
-          exists: true,
-          field: 'customerId',
-          value: customerId.toString(),
-        }
       }
     }
 

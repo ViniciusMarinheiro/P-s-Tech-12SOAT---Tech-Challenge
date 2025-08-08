@@ -11,17 +11,17 @@ export class WorkOrderPart {
   @PrimaryGeneratedColumn()
   id: number
 
-  @Column({ type: 'int' })
-  work_order_id: number
+  @Column({ type: 'int', name: 'work_order_id' })
+  workOrderId: number
 
-  @Column({ type: 'int' })
-  part_id: number
+  @Column({ type: 'int', name: 'part_id' })
+  partId: number
 
   @Column({ type: 'int', default: 1 })
   quantity: number
 
-  @Column({ type: 'int' }) // valor em centavos
-  total_price: number
+  @Column({ type: 'int', name: 'total_price' })
+  totalPrice: number
 
   @ManyToOne('WorkOrder', 'workOrderParts')
   @JoinColumn({ name: 'work_order_id' })
