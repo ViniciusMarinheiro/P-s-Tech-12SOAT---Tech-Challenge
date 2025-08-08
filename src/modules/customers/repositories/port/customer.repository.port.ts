@@ -24,4 +24,8 @@ export abstract class CustomerRepositoryPort {
     phone: string | undefined,
     id?: number,
   ): Promise<{ exists: boolean; field?: string; value?: string }>
+
+  abstract findOneByDocument(
+    document: string,
+  ): Promise<CustomerResponseDto | null>
 }

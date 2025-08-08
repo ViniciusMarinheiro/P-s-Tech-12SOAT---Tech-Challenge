@@ -62,6 +62,20 @@ export class CustomersController {
     return this.customersService.findOne(id)
   }
 
+  @Get('document/:document')
+  @ApiOperation({ summary: 'Get a customer by document' })
+  @ApiResponse({
+    status: 200,
+    description: 'Customer found',
+    type: CustomerResponseDto,
+  })
+  @ApiResponse({ status: 404, description: 'Customer not found' })
+  findDocument(
+    @Param('document') document: string,
+  ): Promise<CustomerResponseDto> {
+    return this.customersService.findOneByDocument(document)
+  }
+
   @Patch(':id')
   @ApiOperation({ summary: 'Update a customer' })
   @ApiResponse({

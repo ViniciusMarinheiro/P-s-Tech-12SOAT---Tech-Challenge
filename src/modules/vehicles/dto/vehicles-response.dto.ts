@@ -10,6 +10,13 @@ export class VehiclesResponseDto {
   @IsString()
   id: number
 
+  @ApiProperty({
+    description: 'ID do cliente',
+    example: 1,
+  })
+  @IsNumber()
+  customerId: number
+
   @ApiProperty({ description: 'ID do cliente' })
   @IsNumber()
   customer: CustomerResponseDto

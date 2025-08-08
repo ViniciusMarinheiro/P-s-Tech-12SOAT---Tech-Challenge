@@ -7,6 +7,8 @@ export const ErrorMessages = {
     FORBIDDEN: () => 'Acesso negado',
   },
   CUSTOMER: {
+    NOT_FOUND_DOCUMENT: (document: string) =>
+      `Cliente com documento ${document} não encontrado`,
     NOT_FOUND: (id: number) => `Cliente com ID ${id} não encontrado`,
     ALREADY_EXISTS: () => `Cliente já existe`,
   },

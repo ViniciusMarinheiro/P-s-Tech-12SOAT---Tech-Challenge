@@ -5,10 +5,10 @@ import { VehiclesService } from './vehicles.service'
 import { VehiclesRepository } from './repositories/vehicles.repository'
 import { VehiclesRepositoryPort } from './repositories/port/vehicles.repository.port'
 import { Vehicle } from './entities/vehicle.entity'
-import { Customer } from '../customers/entities/customer.entity'
+import { CustomersModule } from '../customers/customers.module'
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Vehicle, Customer])],
+  imports: [TypeOrmModule.forFeature([Vehicle]), CustomersModule],
   controllers: [VehiclesController],
   providers: [
     VehiclesService,
