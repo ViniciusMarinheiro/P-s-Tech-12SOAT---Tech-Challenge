@@ -23,7 +23,6 @@ describe('WorkOrdersService', () => {
         WorkOrdersService,
         {
           provide: WorkOrderRepositoryPort,
-          // create retorna void no serviço → tipar o mock pra Promise<void>
           useValue: {
             create: jest.fn<Promise<void>, any[]>(),
             findById: jest.fn(),
@@ -48,6 +47,10 @@ describe('WorkOrdersService', () => {
     svcs = module.get(ServicesService)
     parts = module.get(PartsService)
   })
+
+    it('should be defined', () => {
+        expect(service).toBeDefined();
+    });
 
   describe('create', () => {
 
