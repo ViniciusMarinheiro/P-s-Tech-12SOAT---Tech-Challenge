@@ -2,7 +2,7 @@ import { Test, TestingModule } from '@nestjs/testing'
 import { CustomersService } from './customers.service'
 import { CustomerRepository } from './repositories/customer.repository';
 
-describe ('CustomerServicer', () => {
+describe ('CustomerService', () => {
     let customerRepository: any;
     let module: TestingModule;
 
