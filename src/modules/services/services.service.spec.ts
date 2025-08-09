@@ -1,7 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing'
 import { ServicesService } from './services.service'
 import { ServiceRepositoryPort } from './repositories/port/service.repository.port';
-import { exists } from 'fs';
 
 describe ('ServicesService', () => {
     let servicesService: ServicesService;
