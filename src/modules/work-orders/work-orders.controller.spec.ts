@@ -44,7 +44,7 @@ describe('WorkOrdersController', () => {
     }).compile()
 
     controller = module.get(WorkOrdersController)
-    service = module.get(WorkOrdersService) as any
+    service = module.get(WorkOrdersService) as jest.Mocked<WorkOrdersService>
   })
 
   describe('create', () => {
