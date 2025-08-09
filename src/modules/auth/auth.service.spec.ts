@@ -3,8 +3,6 @@ import { AuthService } from './auth.service'
 import { UserRepository } from '../users/repositories/user.repository';
 import { JwtService } from '@nestjs/jwt'
 import * as bcrypt from 'bcryptjs'
-import { UserRole } from './enums/user-role.enum';
-import { find } from 'rxjs';
 
 describe ('AuthService', () => {
     let userRepository: any;
