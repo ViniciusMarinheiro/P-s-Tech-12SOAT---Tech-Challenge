@@ -13,7 +13,8 @@ describe('CustomersController (E2E)', () => {
   let app: INestApplication;
   let userRepository: Repository<User>;
   let customerRepository: Repository<Customer>;
-  let jwtToken: string; // Variável para armazenar nosso token JWT
+  let jwtTokenAdmin: string;
+  let jwtTokenCustomer: string;
 
   beforeAll(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
@@ -22,7 +23,6 @@ describe('CustomersController (E2E)', () => {
         TypeOrmModule.forRoot({
           type: 'sqlite',
           database: ':memory:',
-          // Importante: adicione TODAS as entidades usadas nos testes
           entities: [User, Customer],
           synchronize: true,
         }),
@@ -51,19 +51,28 @@ describe('CustomersController (E2E)', () => {
       role: UserRole.CUSTOMER,
     });
 
-    // 2. Fazer login para obter o token
-    const loginResponse = await request(app.getHttpServer())
+    // 3. Fazer login ADMIN para obter o token
+    const loginResponseAdmin = await request(app.getHttpServer())
       .post('/auth/login')
       .send({
         email: 'admin@test.com',
         password: 'password123',
       });
 
-    jwtToken = loginResponse.body.access_token;
-  });
+    jwtTokenAdmin = loginResponseAdmin.body.access_token;
+
+    // 4. Fazer login USER para obter o token
+    const loginResponseCustomer = await request(app.getHttpServer())
+      .post('/auth/login')
+      .send({
+        email: 'user@test.com',
+        password: 'password123',
+      });
+
+    jwtTokenCustomer = loginResponseCustomer.body.access_token;
+    });
 
   beforeEach(async () => {
-    // Limpa apenas a tabela customers antes de cada teste
     await customerRepository.clear();
   });
 
@@ -81,7 +90,7 @@ describe('CustomersController (E2E)', () => {
     it('should create a customer when user is authenticated and authorized', () => {
       return request(app.getHttpServer())
         .post('/customers')
-        .set('Authorization', `Bearer ${jwtToken}`)
+        .set('Authorization', `Bearer ${jwtTokenAdmin}`)
         .send(createCustomerDto)
         .expect(HttpStatus.CREATED)
         .then((response) => {
@@ -103,18 +112,10 @@ describe('CustomersController (E2E)', () => {
     });
 
     it('should return 403 Forbidden if user is not authorized', async () => {
-      const loginResponse = await request(app.getHttpServer())
-        .post('/auth/login')
-        .send({
-          email: 'user@test.com',
-          password: 'password123',
-        });
-
-      const userJwtToken = loginResponse.body.access_token;
 
       return request(app.getHttpServer())
         .post('/customers')
-        .set('Authorization', `Bearer ${userJwtToken}`)
+        .set('Authorization', `Bearer ${jwtTokenCustomer}`)
         .send(createCustomerDto)
         .expect(HttpStatus.FORBIDDEN);
     });
@@ -131,7 +132,7 @@ describe('CustomersController (E2E)', () => {
 
       return request(app.getHttpServer())
         .get('/customers')
-        .set('Authorization', `Bearer ${jwtToken}`)
+        .set('Authorization', `Bearer ${jwtTokenAdmin}`)
         .expect(HttpStatus.OK)
         .then((response) => {
           expect(response.body).toBeInstanceOf(Array);
@@ -147,18 +148,10 @@ describe('CustomersController (E2E)', () => {
     });
 
     it('should return 403 Forbidden if user is not authorized', async () => {
-      const loginResponse = await request(app.getHttpServer())
-        .post('/auth/login')
-        .send({
-          email: 'user@test.com',
-          password: 'password123',
-        });
-
-      const userJwtToken = loginResponse.body.access_token;
 
       return request(app.getHttpServer())
         .get('/customers')
-        .set('Authorization', `Bearer ${userJwtToken}`)
+        .set('Authorization', `Bearer ${jwtTokenCustomer}`)
         .expect(HttpStatus.FORBIDDEN);
     });
   });
