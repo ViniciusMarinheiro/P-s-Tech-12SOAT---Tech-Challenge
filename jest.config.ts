@@ -31,6 +31,7 @@ const config: Config = {
     '.interface.ts$',    // Ignora arquivos de interface
     '.enum.ts$',         // Ignora arquivos de enum
     'index.ts$',         // Ignora arquivos de index'
+    'repository.ts$',    // Ignora arquivos de repositório
     'src/config/', // Ignora arquivos de configuração
     'src/migrations/', // Ignora migrações do TypeORM
     'src/seeds/', // Ignora seeds do TypeORM
