@@ -70,7 +70,7 @@ describe('CustomersController (E2E)', () => {
       });
 
     jwtTokenCustomer = loginResponseCustomer.body.access_token;
-    });
+  });
 
   beforeEach(async () => {
     await customerRepository.clear();
@@ -112,7 +112,6 @@ describe('CustomersController (E2E)', () => {
     });
 
     it('should return 403 Forbidden if user is not authorized', async () => {
-
       return request(app.getHttpServer())
         .post('/customers')
         .set('Authorization', `Bearer ${jwtTokenCustomer}`)
@@ -148,7 +147,6 @@ describe('CustomersController (E2E)', () => {
     });
 
     it('should return 403 Forbidden if user is not authorized', async () => {
-
       return request(app.getHttpServer())
         .get('/customers')
         .set('Authorization', `Bearer ${jwtTokenCustomer}`)
