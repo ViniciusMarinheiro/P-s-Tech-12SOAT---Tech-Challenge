@@ -23,7 +23,6 @@ describe ('CustomerServicer', () => {
             ],
         }).compile();
 
-        // service = module.get<CustomersService>(CustomersService);
         customerRepository = module.get<CustomerRepository>('CustomerRepository');
     });
 
