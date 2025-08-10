@@ -26,7 +26,7 @@ export class CreatePartDto {
   @IsOptional()
   @IsNumber()
   @Min(0)
-  stock?: number
+  stock: number
 
   @ApiProperty({
     description: 'Preço unitário da peça',
