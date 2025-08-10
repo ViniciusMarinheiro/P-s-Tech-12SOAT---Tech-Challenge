@@ -1,3 +1,3 @@
 export function convertToCents(value: number): number {
-  return value * 100
+  return Math.round(value * 100);
 }
