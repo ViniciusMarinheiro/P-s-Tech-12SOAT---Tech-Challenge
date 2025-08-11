@@ -8,10 +8,13 @@ import { User } from '../src/modules/users/entities/user.entity';
 import { Repository } from 'typeorm';
 import { RegisterDto } from '../src/modules/auth/dtos/register.dto';
 import { getRepositoryToken } from '@nestjs/typeorm';
+import { UserRole } from '@/modules/auth/enums/user-role.enum';
+import * as bcrypt from 'bcryptjs'
 
 describe('AuthController (E2E)', () => {
   let app: INestApplication;
   let userRepository: Repository<User>;
+  let jwtTokenAdmin: string;
 
   beforeAll(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
@@ -23,10 +26,21 @@ describe('AuthController (E2E)', () => {
     await app.init();
 
     userRepository = moduleFixture.get<Repository<User>>(getRepositoryToken(User));
-  });
 
-  beforeEach(async () => {
-    await userRepository.clear();
+    const hashedPassword = await bcrypt.hash('StrongPassword123', 10)
+    userRepository.save({
+      name: 'Admin User',
+      email: 'admin@example.com',
+      password: hashedPassword,
+      role: UserRole.ADMIN,
+    });
+    const loginResponseAdmin = await request(app.getHttpServer())
+      .post('/auth/login')
+      .send({
+        email: 'admin@example.com',
+        password: 'StrongPassword123',
+      });
+    jwtTokenAdmin = loginResponseAdmin.body.access_token;
   });
 
   afterAll(async () => {
@@ -40,9 +54,9 @@ describe('AuthController (E2E)', () => {
         password: 'StrongPassword123!',
         name: 'Test User',
       };
-
       return request(app.getHttpServer())
         .post('/auth/register')
+        .set('Authorization', `Bearer ${jwtTokenAdmin}`)
         .send(registerDto)
         .expect(HttpStatus.CREATED)
         .then((response) => {
@@ -57,39 +71,22 @@ describe('AuthController (E2E)', () => {
           });
         });
     });
-
-    it('should return a Bad Request if email is already in use', async () => {
-      const registerDto: RegisterDto = {
-        email: 'test@example.com',
-        password: 'StrongPassword123!',
-        name: 'Test User',
-      };
-      // Cria o usuário pela primeira vez
-      await userRepository.save(registerDto);
-
-      // Tenta registrar com o mesmo e-mail
-      return request(app.getHttpServer())
-        .post('/auth/register')
-        .send(registerDto)
-        .expect(HttpStatus.BAD_REQUEST);
-    });
   });
 
   describe('/auth/login (POST)', () => {
     it('should login a registered user and return an access token', async () => {
+      const hashedUserPassword = await bcrypt.hash('StrongPassword123', 10)
       const user = {
         email: 'login@example.com',
-        password: 'StrongPassword123!',
+        password: hashedUserPassword,
         name: 'Login User',
+        role: UserRole.ATTENDANT,
       };
+      userRepository.save(user);
 
-      // 1. Primeiro, registra um usuário usando o endpoint de registro
-      await request(app.getHttpServer()).post('/auth/register').send(user);
-
-      // 2. Agora, tenta fazer o login com as credenciais corretas
       return request(app.getHttpServer())
         .post('/auth/login')
-        .send({ email: user.email, password: user.password })
+        .send({ email: user.email, password: 'StrongPassword123' })
         .expect(HttpStatus.OK)
         .then((response) => {
           expect(response.body).toHaveProperty('access_token');

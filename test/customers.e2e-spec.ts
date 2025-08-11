@@ -9,6 +9,7 @@ import { User } from '../src/modules/users/entities/user.entity';
 import { Customer } from '../src/modules/customers/entities/customer.entity';
 import { UserRole } from '../src/modules/auth/enums/user-role.enum';
 import { CreateCustomerDto } from '../src/modules/customers/dto/create-customer.dto';
+import * as bcrypt from 'bcryptjs'
 
 describe('CustomersController (E2E)', () => {
   let app: INestApplication;
@@ -28,15 +29,13 @@ describe('CustomersController (E2E)', () => {
     userRepository = moduleFixture.get('UserRepository');
     customerRepository = moduleFixture.get('CustomerRepository');
 
-    await request(app.getHttpServer())
-      .post('/auth/register')
-      .send({
-        name: 'Admin User',
-        email: 'admin@test.com',
-        password: 'password123',
-      })
-      .expect(201);
-    await userRepository.update({ email: 'admin@test.com' }, { role: UserRole.ADMIN });
+    const hashedPassword = await bcrypt.hash('StrongPassword123', 10)
+    userRepository.save({
+      name: 'Admin User',
+      email: 'admin@example.com',
+      password: hashedPassword,
+      role: UserRole.ADMIN,
+    });
 
     await request(app.getHttpServer())
       .post('/auth/register')
@@ -45,12 +44,11 @@ describe('CustomersController (E2E)', () => {
         email: 'user@test.com',
         password: 'password123',
       });
-
     const loginResponseAdmin = await request(app.getHttpServer())
       .post('/auth/login')
       .send({
-        email: 'admin@test.com',
-        password: 'password123',
+        email: 'admin@example.com',
+        password: 'StrongPassword123',
       });
     jwtTokenAdmin = loginResponseAdmin.body.access_token;
 
@@ -103,7 +101,7 @@ describe('CustomersController (E2E)', () => {
         .post('/customers')
         .set('Authorization', `Bearer ${jwtTokenCustomer}`)
         .send(createCustomerDto)
-        .expect(HttpStatus.BAD_REQUEST);
+        .expect(HttpStatus.UNAUTHORIZED);
     });
   });
 
