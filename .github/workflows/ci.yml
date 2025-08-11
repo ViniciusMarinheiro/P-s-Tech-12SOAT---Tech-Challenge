@@ -94,6 +94,18 @@ jobs:
       - name: 📥 Instalar dependências
         run: yarn install --frozen-lockfile
 
+      - name: ⏳ Aguardar PostgreSQL
+        run: |
+          echo "⏳ Aguardando PostgreSQL..."
+          timeout 30 bash -c 'until nc -z localhost 5432; do sleep 1; done'
+          echo "✅ PostgreSQL está rodando!"
+
+      - name: ⏳ Aguardar Redis
+        run: |
+          echo "⏳ Aguardando Redis..."
+          timeout 30 bash -c 'until nc -z localhost 6379; do sleep 1; done'
+          echo "✅ Redis está rodando!"
+
       - name: 🗄️ Executar migrations
         run: yarn typeorm-ts-node-commonjs migration:run -d src/config/database/data-source.ts
 
@@ -164,6 +176,18 @@ jobs:
 
       - name: 📥 Instalar dependências
         run: yarn install --frozen-lockfile
+
+      - name: ⏳ Aguardar PostgreSQL
+        run: |
+          echo "⏳ Aguardando PostgreSQL..."
+          timeout 30 bash -c 'until nc -z localhost 5432; do sleep 1; done'
+          echo "✅ PostgreSQL está rodando!"
+
+      - name: ⏳ Aguardar Redis
+        run: |
+          echo "⏳ Aguardando Redis..."
+          timeout 30 bash -c 'until nc -z localhost 6379; do sleep 1; done'
+          echo "✅ Redis está rodando!"
 
       - name: 🗄️ Executar migrations
         run: yarn typeorm-ts-node-commonjs migration:run -d src/config/database/data-source.ts
