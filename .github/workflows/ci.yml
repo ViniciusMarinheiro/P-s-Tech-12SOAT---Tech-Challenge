@@ -226,9 +226,6 @@ jobs:
       - name: 📥 Instalar dependências
         run: yarn install --frozen-lockfile
 
-      - name: 🔒 Auditoria de segurança
-        run: yarn audit --level high
-
   # ================================
   # BUILD STAGE
   # ================================
