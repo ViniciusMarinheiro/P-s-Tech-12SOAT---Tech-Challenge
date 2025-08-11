@@ -385,13 +385,13 @@ describe('WorkOrdersService', () => {
 
     it('should include delivery date in email when status is DELIVERED', async () => {
       const emailSpy = jest.spyOn(service['sendEmailQueueProvider'], 'execute')
-      const mockDate = new Date('2024-01-15')
+      const mockDate = new Date('2024-01-15 10:00:00')
       jest.spyOn(global, 'Date').mockImplementation(() => mockDate as any)
 
       await service.updateStatus(1, WorkOrderStatusEnum.DELIVERED)
 
       const emailCall = emailSpy.mock.calls[0][0]
-      expect(emailCall.body).toContain('14/01/2024')
+      expect(emailCall.body).toContain('15/01/2024')
 
       jest.restoreAllMocks()
     })
