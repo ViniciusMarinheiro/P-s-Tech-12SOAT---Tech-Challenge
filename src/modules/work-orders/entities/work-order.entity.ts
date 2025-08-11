@@ -9,6 +9,7 @@ import {
   OneToMany,
 } from 'typeorm'
 import { WorkOrderStatusEnum } from '../enum/work-order-status.enum'
+import { columnDate } from '@/common/db/column-date.util';
 
 @Entity('work_orders')
 export class WorkOrder {
@@ -60,4 +61,10 @@ export class WorkOrder {
 
   @OneToMany('WorkOrderPart', 'workOrder')
   workOrderParts: any[]
+
+  @Column(columnDate({ name: 'started_at', nullable: false, default: () => 'CURRENT_TIMESTAMP' }))
+  startedAt: Date
+
+  @Column(columnDate({ name: 'finished_at', nullable: true }))
+  finishedAt: Date
 }

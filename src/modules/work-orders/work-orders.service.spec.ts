@@ -33,6 +33,7 @@ describe('WorkOrdersService', () => {
             findByVehicleId: jest.fn(),
             findByStatus: jest.fn(),
             updateStatus: jest.fn(),
+            updateFinishedAt: jest.fn(),
           },
         },
         { provide: VehiclesService, useValue: { findOne: jest.fn() } },
@@ -193,7 +194,7 @@ describe('WorkOrdersService', () => {
   })
 
   describe('updateStatus', () => {
-    const mockWorkOrder = {
+    const baseWorkOrder: any = {
       id: 1,
       customerId: 1,
       vehicleId: 1,
@@ -241,183 +242,180 @@ describe('WorkOrdersService', () => {
       hashView: 'hash123',
       createdAt: new Date(),
       updatedAt: new Date(),
-    } as any
+    }
 
     beforeEach(() => {
       jest.clearAllMocks()
-      repo.findById.mockResolvedValue(mockWorkOrder)
-      repo.updateStatus.mockResolvedValue(mockWorkOrder)
-      service['validateStatusTransition'] = jest
-        .fn()
-        .mockResolvedValue(undefined)
-      jest
-        .spyOn(service['envConfigService'], 'get')
-        .mockReturnValue('http://localhost:3333/api')
+      repo.findById.mockResolvedValue({ ...baseWorkOrder })
+      repo.updateStatus.mockResolvedValue(undefined as any)
+      repo.updateFinishedAt.mockResolvedValue(undefined as any)
+      // evita bater na regra real; focamos no fluxo de envio/atualização
+      service['validateStatusTransition'] = jest.fn().mockResolvedValue(undefined)
+      jest.spyOn(service['envConfigService'], 'get').mockReturnValue('http://localhost:3333/api')
     })
 
     it('deve lançar NotFoundException quando ordem não encontrada', async () => {
       repo.findById.mockResolvedValueOnce(null)
 
-      await expect(
-        service.updateStatus(999, WorkOrderStatusEnum.FINISHED),
-      ).rejects.toBeInstanceOf(NotFoundException)
+      await expect(service.updateStatus(999, WorkOrderStatusEnum.FINISHED))
+        .rejects.toBeInstanceOf(NotFoundException)
+
+      expect(repo.findById).toHaveBeenCalledWith(999)
+      expect(repo.updateStatus).not.toHaveBeenCalled()
     })
 
-    it('should throw CustomException when status is invalid', async () => {
+    it('deve lançar CustomException quando a transição é inválida', async () => {
       service['validateStatusTransition'] = jest
         .fn()
-        .mockRejectedValueOnce(
-          new CustomException('Transição de status inválida'),
-        )
+        .mockRejectedValueOnce(new CustomException('Transição de status inválida'))
 
-      await expect(
-        service.updateStatus(1, WorkOrderStatusEnum.FINISHED),
-      ).rejects.toBeInstanceOf(CustomException)
+      await expect(service.updateStatus(1, WorkOrderStatusEnum.FINISHED))
+        .rejects.toBeInstanceOf(CustomException)
+
+      expect(repo.updateStatus).not.toHaveBeenCalled()
     })
 
-    it('should send email when status is FINISHED', async () => {
+    it('deve enviar email quando status = FINISHED', async () => {
       const emailSpy = jest.spyOn(service['sendEmailQueueProvider'], 'execute')
 
       await service.updateStatus(1, WorkOrderStatusEnum.FINISHED)
 
-      expect(emailSpy).toHaveBeenCalledWith({
-        recipient: 'cliente@test.com',
-        subject: 'Ordem de serviço 1 - Finalizada',
-        body: expect.stringContaining('🎉 Ordem de Serviço #1 - Finalizada!'),
-      })
-      expect(repo.updateStatus).toHaveBeenCalledWith(
-        1,
-        WorkOrderStatusEnum.FINISHED,
+      expect(emailSpy).toHaveBeenCalledWith(
+        expect.objectContaining({
+          recipient: 'cliente@test.com',
+          subject: 'Ordem de serviço 1 - Finalizada',
+          body: expect.stringContaining('🎉 Ordem de Serviço #1 - Finalizada!'),
+        }),
       )
+      expect(repo.updateStatus).toHaveBeenCalledWith(1, WorkOrderStatusEnum.FINISHED)
     })
 
-    it('should send emails when status is IN_PROGRESS', async () => {
+    it('deve enviar 2 emails quando status = IN_PROGRESS (cliente e técnico)', async () => {
       const emailSpy = jest.spyOn(service['sendEmailQueueProvider'], 'execute')
 
       await service.updateStatus(1, WorkOrderStatusEnum.IN_PROGRESS)
 
       expect(emailSpy).toHaveBeenCalledTimes(2)
 
-      // Email for customer
-      expect(emailSpy).toHaveBeenCalledWith({
-        recipient: 'cliente@test.com',
-        subject: 'Ordem de serviço 1 - Em andamento',
-        body: expect.stringContaining('🔧 Ordem de Serviço #1 - Em Andamento'),
-      })
-
-      // Email for technician
-      expect(emailSpy).toHaveBeenCalledWith({
-        recipient: 'tecnico@test.com',
-        subject: 'Ordem de serviço 1 - Confirmada',
-        body: expect.stringContaining('📋 Ordem de Serviço #1 - Confirmada'),
-      })
-
-      expect(repo.updateStatus).toHaveBeenCalledWith(
-        1,
-        WorkOrderStatusEnum.IN_PROGRESS,
+      expect(emailSpy).toHaveBeenCalledWith(
+        expect.objectContaining({
+          recipient: 'cliente@test.com',
+          subject: 'Ordem de serviço 1 - Em andamento',
+          body: expect.stringContaining('🔧 Ordem de Serviço #1 - Em Andamento'),
+        }),
       )
+
+      expect(emailSpy).toHaveBeenCalledWith(
+        expect.objectContaining({
+          recipient: 'tecnico@test.com',
+          subject: 'Ordem de serviço 1 - Confirmada',
+          body: expect.stringContaining('📋 Ordem de Serviço #1 - Confirmada'),
+        }),
+      )
+
+      expect(repo.updateStatus).toHaveBeenCalledWith(1, WorkOrderStatusEnum.IN_PROGRESS)
     })
 
-    it('should send approval email when transition is DIAGNOSING -> AWAITING_APPROVAL', async () => {
+    it('deve enviar email de aprovação quando transição DIAGNOSING -> AWAITING_APPROVAL', async () => {
       const emailSpy = jest.spyOn(service['sendEmailQueueProvider'], 'execute')
 
       await service.updateStatus(1, WorkOrderStatusEnum.AWAITING_APPROVAL)
 
-      expect(emailSpy).toHaveBeenCalledWith({
-        recipient: 'cliente@test.com',
-        subject: 'Ordem de serviço 1 - Aguardando aprovação',
-        body: expect.stringContaining(
-          '🚗 Ordem de Serviço #1 - Aguardando Aprovação',
-        ),
-      })
-
-      expect(repo.updateStatus).toHaveBeenCalledWith(
-        1,
-        WorkOrderStatusEnum.AWAITING_APPROVAL,
+      expect(emailSpy).toHaveBeenCalledWith(
+        expect.objectContaining({
+          recipient: 'cliente@test.com',
+          subject: 'Ordem de serviço 1 - Aguardando aprovação',
+          body: expect.stringContaining('🚗 Ordem de Serviço #1 - Aguardando Aprovação'),
+        }),
       )
+
+      expect(repo.updateStatus).toHaveBeenCalledWith(1, WorkOrderStatusEnum.AWAITING_APPROVAL)
     })
 
-    it('should send email when status is DELIVERED', async () => {
+    it('não deve enviar email de aprovação se status atual != DIAGNOSING', async () => {
+      // força status atual para RECEIVED
+      repo.findById.mockResolvedValueOnce({ ...baseWorkOrder, status: WorkOrderStatusEnum.RECEIVED })
+      const emailSpy = jest.spyOn(service['sendEmailQueueProvider'], 'execute')
+
+      await service.updateStatus(1, WorkOrderStatusEnum.AWAITING_APPROVAL)
+
+      // nenhuma chamada de email neste caso específico (regra do método)
+      expect(emailSpy).not.toHaveBeenCalled()
+      expect(repo.updateStatus).toHaveBeenCalledWith(1, WorkOrderStatusEnum.AWAITING_APPROVAL)
+    })
+
+    it('deve chamar updateFinishedAt e enviar email quando status = DELIVERED', async () => {
       const emailSpy = jest.spyOn(service['sendEmailQueueProvider'], 'execute')
 
       await service.updateStatus(1, WorkOrderStatusEnum.DELIVERED)
 
-      expect(emailSpy).toHaveBeenCalledWith({
-        recipient: 'cliente@test.com',
-        subject: 'Ordem de serviço 1 - Entregue com sucesso!',
-        body: expect.stringContaining('🎊 Ordem de Serviço #1 - Entregue!'),
-      })
-
-      expect(repo.updateStatus).toHaveBeenCalledWith(
-        1,
-        WorkOrderStatusEnum.DELIVERED,
+      expect(repo.updateFinishedAt).toHaveBeenCalledWith(1, expect.any(Date))
+      expect(emailSpy).toHaveBeenCalledWith(
+        expect.objectContaining({
+          recipient: 'cliente@test.com',
+          subject: 'Ordem de serviço 1 - Entregue com sucesso!',
+          body: expect.stringContaining('🎊 Ordem de Serviço #1 - Entregue!'),
+        }),
       )
+      expect(repo.updateStatus).toHaveBeenCalledWith(1, WorkOrderStatusEnum.DELIVERED)
     })
 
-    it('should update status in repository after sending emails', async () => {
+    it('deve atualizar status no repositório após validações e envios', async () => {
       await service.updateStatus(1, WorkOrderStatusEnum.FINISHED)
 
-      expect(repo.updateStatus).toHaveBeenCalledWith(
-        1,
-        WorkOrderStatusEnum.FINISHED,
-      )
+      expect(service['validateStatusTransition']).toHaveBeenCalledWith(1, WorkOrderStatusEnum.FINISHED)
+      expect(repo.updateStatus).toHaveBeenCalledWith(1, WorkOrderStatusEnum.FINISHED)
     })
 
-    it('should validate status transition before executing', async () => {
-      await service.updateStatus(1, WorkOrderStatusEnum.FINISHED)
-
-      expect(service['validateStatusTransition']).toHaveBeenCalledWith(
-        1,
-        WorkOrderStatusEnum.FINISHED,
-      )
-    })
-
-    it('should include approval link in email when status is AWAITING_APPROVAL', async () => {
+    it('deve incluir link de aprovação no email quando status = AWAITING_APPROVAL', async () => {
       const emailSpy = jest.spyOn(service['sendEmailQueueProvider'], 'execute')
 
       await service.updateStatus(1, WorkOrderStatusEnum.AWAITING_APPROVAL)
 
       const emailCall = emailSpy.mock.calls[0][0]
-      expect(emailCall.body).toContain(
-        'http://localhost:3333/api/work-orders/approve/hash123',
-      )
+      expect(emailCall.body).toContain('http://localhost:3333/api/work-orders/approve/hash123')
     })
 
-    it('should include delivery date in email when status is DELIVERED', async () => {
+    it('deve incluir data de entrega formatada no email quando status = DELIVERED', async () => {
       const emailSpy = jest.spyOn(service['sendEmailQueueProvider'], 'execute')
-      const mockDate = new Date('2024-01-15 10:00:00')
-      jest.spyOn(global, 'Date').mockImplementation(() => mockDate as any)
+      const mockDate = new Date('2024-01-15T10:00:00Z')
+      const RealDate = Date
+      // mock de Date para controlar a formatação
+      // @ts-ignore
+      global.Date = class extends RealDate {
+        constructor(...args: any[]) {
+          super()
+          if (args.length === 0) {
+            return mockDate as any
+          }
+          // @ts-ignore
+          return new RealDate(...args)
+        }
+        static now() { return mockDate.getTime() }
+      }
 
       await service.updateStatus(1, WorkOrderStatusEnum.DELIVERED)
 
       const emailCall = emailSpy.mock.calls[0][0]
       expect(emailCall.body).toContain('15/01/2024')
 
-      jest.restoreAllMocks()
+      global.Date = RealDate
     })
 
-    it('should include service and parts details in approval email', async () => {
+    it('deve incluir detalhes de serviços e peças no email de aprovação', async () => {
       const emailSpy = jest.spyOn(service['sendEmailQueueProvider'], 'execute')
 
       await service.updateStatus(1, WorkOrderStatusEnum.AWAITING_APPROVAL)
 
-      const emailCall = emailSpy.mock.calls[0][0]
-      expect(emailCall.body).toContain('Troca de óleo')
-      expect(emailCall.body).toContain('Filtro de ar')
-      expect(emailCall.body).toContain('Óleo 5W30')
-      expect(emailCall.body).toContain('Filtro de óleo')
+      const body = emailSpy.mock.calls[0][0].body
+      expect(body).toContain('Troca de óleo')
+      expect(body).toContain('Filtro de ar')
+      expect(body).toContain('Óleo 5W30')
+      expect(body).toContain('Filtro de óleo')
+      expect(body).toContain('R$ 9800')
     })
 
-    it('should include total amount in approval email', async () => {
-      const emailSpy = jest.spyOn(service['sendEmailQueueProvider'], 'execute')
-
-      await service.updateStatus(1, WorkOrderStatusEnum.AWAITING_APPROVAL)
-
-      const emailCall = emailSpy.mock.calls[0][0]
-      expect(emailCall.body).toContain('R$ 9800')
-    })
-
-    it('should include customer and vehicle information in technician email', async () => {
+    it('deve incluir informações de cliente e veículo no email do técnico (IN_PROGRESS)', async () => {
       const emailSpy = jest.spyOn(service['sendEmailQueueProvider'], 'execute')
 
       await service.updateStatus(1, WorkOrderStatusEnum.IN_PROGRESS)
@@ -425,6 +423,91 @@ describe('WorkOrdersService', () => {
       const tecnicoEmailCall = emailSpy.mock.calls[1][0]
       expect(tecnicoEmailCall.body).toContain('Cliente Teste')
       expect(tecnicoEmailCall.body).toContain('Placa ABC-1234')
+    })
+  })
+
+  describe('validateStatusTransition (método privado)', () => {
+    // helper para criar um WO mínimo só com o status
+    const mkWO = (status: WorkOrderStatusEnum) =>
+      ({ id: 1, status } as any)
+
+    // Garante que usamos a implementação real, mesmo que outro bloco tenha mockado
+    beforeEach(() => {
+      const realImpl =
+        Object.getPrototypeOf(service).validateStatusTransition.bind(service)
+      ;(service as any).validateStatusTransition = realImpl
+    })
+
+    it.each([
+      [WorkOrderStatusEnum.RECEIVED, WorkOrderStatusEnum.DIAGNOSING],
+      [WorkOrderStatusEnum.DIAGNOSING, WorkOrderStatusEnum.AWAITING_APPROVAL],
+      [WorkOrderStatusEnum.AWAITING_APPROVAL, WorkOrderStatusEnum.IN_PROGRESS],
+      [WorkOrderStatusEnum.IN_PROGRESS, WorkOrderStatusEnum.FINISHED],
+      [WorkOrderStatusEnum.FINISHED, WorkOrderStatusEnum.DELIVERED],
+    ])(
+      'deve permitir transição válida: %s -> %s',
+      async (from, to) => {
+        repo.findById.mockResolvedValueOnce(mkWO(from))
+
+        await expect(
+          (service as any).validateStatusTransition(1, to),
+        ).resolves.toBeUndefined()
+
+        expect(repo.findById).toHaveBeenCalledWith(1)
+      },
+    )
+
+    it.each([
+      // alguns exemplos inválidos
+      [WorkOrderStatusEnum.RECEIVED, WorkOrderStatusEnum.IN_PROGRESS],
+      [WorkOrderStatusEnum.RECEIVED, WorkOrderStatusEnum.FINISHED],
+      [WorkOrderStatusEnum.DIAGNOSING, WorkOrderStatusEnum.FINISHED],
+      [WorkOrderStatusEnum.AWAITING_APPROVAL, WorkOrderStatusEnum.DELIVERED],
+      [WorkOrderStatusEnum.FINISHED, WorkOrderStatusEnum.IN_PROGRESS],
+      [WorkOrderStatusEnum.DELIVERED, WorkOrderStatusEnum.RECEIVED],
+    ])(
+      'deve lançar CustomException para transição inválida: %s -> %s',
+      async (from, to) => {
+        repo.findById.mockResolvedValueOnce(mkWO(from))
+
+        await expect(
+          (service as any).validateStatusTransition(1, to),
+        ).rejects.toMatchObject({
+          constructor: CustomException,
+          message: expect.stringContaining(`${from} -> ${to}`),
+        })
+      },
+    )
+
+    it.each([
+      WorkOrderStatusEnum.RECEIVED,
+      WorkOrderStatusEnum.DIAGNOSING,
+      WorkOrderStatusEnum.AWAITING_APPROVAL,
+      WorkOrderStatusEnum.IN_PROGRESS,
+      WorkOrderStatusEnum.FINISHED,
+      WorkOrderStatusEnum.DELIVERED,
+    ])('deve considerar inválida a mesma origem/destino: %s -> %s', async (st) => {
+      repo.findById.mockResolvedValueOnce(mkWO(st))
+
+      await expect(
+        (service as any).validateStatusTransition(1, st),
+      ).rejects.toBeInstanceOf(CustomException)
+    })
+
+    it('não deve permitir nenhuma transição a partir de DELIVERED', async () => {
+      repo.findById.mockResolvedValueOnce(mkWO(WorkOrderStatusEnum.DELIVERED))
+
+      await expect(
+        (service as any).validateStatusTransition(1, WorkOrderStatusEnum.FINISHED),
+      ).rejects.toBeInstanceOf(CustomException)
+    })
+
+    it('deve propagar NotFoundException quando a ordem não existe', async () => {
+      repo.findById.mockResolvedValueOnce(null)
+
+      await expect(
+        (service as any).validateStatusTransition(999, WorkOrderStatusEnum.DIAGNOSING),
+      ).rejects.toBeInstanceOf(NotFoundException)
     })
   })
 })

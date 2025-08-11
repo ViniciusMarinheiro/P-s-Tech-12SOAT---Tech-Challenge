@@ -40,7 +40,6 @@ describe('AuthController (E2E)', () => {
         name: 'Admin Test',
         role: UserRole.ADMIN,
       })
-      console.log('✅ Usuário admin criado:', adminUser.email)
     }
 
     let joaoUser = await userRepository.findOne({
@@ -58,13 +57,6 @@ describe('AuthController (E2E)', () => {
         role: UserRole.ATTENDANT,
       })
     }
-
-    // Debug: verificar usuários no banco após criação
-    const allUsers = await userRepository.find()
-    console.log(
-      '👥 Todos os usuários no banco:',
-      allUsers.map((u) => ({ id: u.id, email: u.email, role: u.role })),
-    )
 
     // Fazer login como admin existente do seed
     const loginResponse = await (request(app.getHttpServer()) as any)
