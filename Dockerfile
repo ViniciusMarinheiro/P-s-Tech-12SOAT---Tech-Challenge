@@ -32,9 +32,6 @@ RUN apk update && apk add --no-cache \
     ca-certificates \
     && rm -rf /var/cache/apk/*
 
-# Criar usuário não-root para segurança
-RUN addgroup -g 1001 -S nodejs && adduser -S nestjs -u 1001
-
 WORKDIR /usr/src/app
 
 # Copiar arquivos do stage de build
@@ -52,12 +49,9 @@ ENV PORT=3333
 # Expor a porta
 EXPOSE 3333
 
-# Mudar para usuário não-root
-USER nestjs
-
 # Verificação de saúde
 HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
     CMD node -e "require('http').get('http://localhost:3333/api/v1/oficina/status', (res) => { process.exit(res.statusCode === 200 ? 0 : 1) })"
 
-# Comando para iniciar a aplicação (roda migrations e inicia)
-CMD ["/bin/sh", "-c", "yarn typeorm-ts-node-commonjs migration:run -d src/config/database/data-source.ts && node dist/main.js"]
+# Comando para iniciar a aplicação (roda migrations, seed e inicia)
+CMD ["/bin/sh", "-c", "yarn typeorm-ts-node-commonjs migration:run -d dist/src/config/database/data-source.js && node dist/src/config/database/seeds/seed.js && node dist/src/main.js"]
