@@ -1,0 +1,316 @@
+name: CI/CD Pipeline - P&S Tech Oficina API
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main, develop]
+  release:
+    types: [published]
+
+env:
+  NODE_VERSION: '20'
+  YARN_VERSION: '1.22.19'
+
+jobs:
+  # ================================
+  # VALIDATE STAGE
+  # ================================
+  validate:
+    name: 🔍 Validar Código
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 📥 Checkout código
+        uses: actions/checkout@v4
+
+      - name: 📦 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'yarn'
+
+      - name: 📥 Instalar dependências
+        run: yarn install --frozen-lockfile
+
+      - name: 🔍 Validar dependências
+        run: yarn audit --level moderate
+
+      - name: 🧹 Validar linting
+        run: yarn lint
+
+      - name: ✨ Validar formatação
+        run: yarn format:check
+
+  # ================================
+  # TEST STAGE
+  # ================================
+  unit-tests:
+    name: 🧪 Testes Unitários
+    runs-on: ubuntu-latest
+    needs: validate
+
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_DB: test_db
+          POSTGRES_USER: test_user
+          POSTGRES_PASSWORD: test_password
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+      redis:
+        image: redis:7
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    env:
+      NODE_ENV: test
+      DB_HOST: localhost
+      DB_PORT: 5432
+      DB_USERNAME: test_user
+      DB_PASSWORD: test_password
+      DB_DATABASE: test_db
+      DB_SCHEMA: public
+      REDIS_HOST: localhost
+      REDIS_PORT: 6379
+      JWT_SECRET: test_secret_key_for_testing_only
+      JWT_EXPIRES_IN: 1h
+      DOCUMENTATION_PREFIX: /api
+      SMTP_HOST: smtp.test.com
+      PORT_EMAIL: 587
+      SECURE_EMAIL: false
+      USER_EMAIL: test@test.com
+      PASS_EMAIL: test_password
+      SERVER_URL: http://localhost:3333
+
+    steps:
+      - name: 📥 Checkout código
+        uses: actions/checkout@v4
+
+      - name: 📦 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'yarn'
+
+      - name: 📥 Instalar dependências
+        run: yarn install --frozen-lockfile
+
+      - name: 🗄️ Executar migrations
+        run: yarn typeorm-ts-node-commonjs migration:run -d src/config/database/data-source.ts
+
+      - name: 🧪 Executar testes unitários
+        run: yarn test --coverage --watchAll=false
+
+      - name: 📊 Upload coverage
+        uses: codecov/codecov-action@v3
+        with:
+          file: ./coverage/lcov.info
+          flags: unittests
+          name: codecov-umbrella
+
+  integration-tests:
+    name: 🔗 Testes de Integração
+    runs-on: ubuntu-latest
+    needs: validate
+
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_DB: test_db
+          POSTGRES_USER: test_user
+          POSTGRES_PASSWORD: test_password
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+      redis:
+        image: redis:7
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    env:
+      NODE_ENV: test
+      DB_HOST: localhost
+      DB_PORT: 5432
+      DB_USERNAME: test_user
+      DB_PASSWORD: test_password
+      DB_DATABASE: test_db
+      DB_SCHEMA: public
+      REDIS_HOST: localhost
+      REDIS_PORT: 6379
+      JWT_SECRET: test_secret_key_for_testing_only
+      JWT_EXPIRES_IN: 1h
+      DOCUMENTATION_PREFIX: /api
+      SMTP_HOST: smtp.test.com
+      PORT_EMAIL: 587
+      SECURE_EMAIL: false
+      USER_EMAIL: test@test.com
+      PASS_EMAIL: test_password
+      SERVER_URL: http://localhost:3333
+
+    steps:
+      - name: 📥 Checkout código
+        uses: actions/checkout@v4
+
+      - name: 📦 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'yarn'
+
+      - name: 📥 Instalar dependências
+        run: yarn install --frozen-lockfile
+
+      - name: 🗄️ Executar migrations
+        run: yarn typeorm-ts-node-commonjs migration:run -d src/config/database/data-source.ts
+
+      - name: 🧪 Executar testes E2E
+        run: yarn test:e2e --detectOpenHandles
+
+  # ================================
+  # SECURITY STAGE
+  # ================================
+  security:
+    name: 🔒 Análise de Segurança
+    runs-on: ubuntu-latest
+    needs: validate
+
+    steps:
+      - name: 📥 Checkout código
+        uses: actions/checkout@v4
+
+      - name: 📦 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'yarn'
+
+      - name: 📥 Instalar dependências
+        run: yarn install --frozen-lockfile
+
+      - name: 🔒 Auditoria de segurança
+        run: yarn audit --level high
+
+  # ================================
+  # BUILD STAGE
+  # ================================
+  build:
+    name: 🏗️ Build Docker
+    runs-on: ubuntu-latest
+    needs: [unit-tests, integration-tests, security]
+    if: github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/')
+
+    steps:
+      - name: 📥 Checkout código
+        uses: actions/checkout@v4
+
+      - name: 🔐 Login no Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      - name: 🏗️ Build e Push da imagem
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          push: true
+          tags: |
+            ${{ secrets.DOCKER_USERNAME }}/ps-tech-api:latest
+            ${{ secrets.DOCKER_USERNAME }}/ps-tech-api:${{ github.sha }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+  # ================================
+  # DEPLOY STAGE
+  # ================================
+  deploy-staging:
+    name: 🚀 Deploy Staging
+    runs-on: ubuntu-latest
+    needs: [unit-tests, integration-tests, security]
+    if: github.ref == 'refs/heads/develop'
+    environment: staging
+
+    steps:
+      - name: 📥 Checkout código
+        uses: actions/checkout@v4
+
+      - name: 🚀 Deploy para Staging
+        run: |
+          echo "🚀 Deployando para staging..."
+          echo "📋 Informações do deploy:"
+          echo "  - Branch: ${{ github.ref_name }}"
+          echo "  - Commit: ${{ github.sha }}"
+          echo "  - Autor: ${{ github.actor }}"
+          echo "  - Data: $(date)"
+          echo "✅ Deploy para staging concluído"
+
+  deploy-production:
+    name: 🚀 Deploy Produção
+    runs-on: ubuntu-latest
+    needs: [build]
+    if: github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/')
+    environment: production
+
+    steps:
+      - name: 📥 Checkout código
+        uses: actions/checkout@v4
+
+      - name: 🚀 Deploy para Produção
+        run: |
+          echo "🚀 Deployando para produção..."
+          echo "📋 Informações do deploy:"
+          echo "  - Branch: ${{ github.ref_name }}"
+          echo "  - Commit: ${{ github.sha }}"
+          echo "  - Autor: ${{ github.actor }}"
+          echo "  - Data: $(date)"
+          echo "✅ Deploy para produção concluído"
+
+  # ================================
+  # NOTIFICATIONS
+  # ================================
+  notify:
+    name: 📢 Notificações
+    runs-on: ubuntu-latest
+    needs:
+      [
+        unit-tests,
+        integration-tests,
+        security,
+        build,
+        deploy-staging,
+        deploy-production,
+      ]
+    if: always()
+
+    steps:
+      - name: 📢 Notificação de sucesso
+        if: success()
+        run: |
+          echo "🎉 Pipeline executado com sucesso!"
+          echo "📊 Resumo:"
+          echo "  - Branch: ${{ github.ref_name }}"
+          echo "  - Commit: ${{ github.sha }}"
+          echo "  - Autor: ${{ github.actor }}"
+
+      - name: 📢 Notificação de falha
+        if: failure()
+        run: |
+          echo "❌ Pipeline falhou!"
+          echo "📊 Resumo:"
+          echo "  - Branch: ${{ github.ref_name }}"
+          echo "  - Commit: ${{ github.sha }}"
+          echo "  - Autor: ${{ github.actor }}"
