@@ -70,6 +70,7 @@ export class WorkOrderRepository extends WorkOrderRepositoryPort {
     dto.vehicleId = workOrder.vehicleId
     dto.status = workOrder.status
     dto.totalAmount = convertToMoney(workOrder.totalAmount)
+    dto.hashView = workOrder.hashView
     dto.createdAt = workOrder.createdAt
     dto.updatedAt = workOrder.updatedAt
 
