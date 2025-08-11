@@ -40,4 +40,8 @@ export abstract class WorkOrderRepositoryPort {
   abstract findByHashView(
     hashView: string,
   ): Promise<WorkOrderResponseDto | null>
+  abstract updateFinishedAt(
+    id: number,
+    finishedAt: Date,
+  ): Promise<WorkOrderResponseDto>
 }

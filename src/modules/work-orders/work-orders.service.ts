@@ -345,6 +345,7 @@ export class WorkOrdersService {
     }
 
     if (status === WorkOrderStatusEnum.DELIVERED) {
+      await this.workOrderRepository.updateFinishedAt(id, new Date());
       await this.sendEmailQueueProvider.execute({
         recipient: workOrder.customer.email,
         subject: `Ordem de serviço ${workOrder.id} - Entregue com sucesso!`,
