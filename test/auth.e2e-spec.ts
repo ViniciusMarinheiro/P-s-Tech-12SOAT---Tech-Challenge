@@ -145,9 +145,10 @@ describe('AuthController (E2E)', () => {
 
   describe('/auth/login (POST)', () => {
     it('should login a registered user and return an access token', async () => {
+      const hashedUserPassword = await bcrypt.hash('StrongPassword123', 10)
       const user = {
         email: 'login@example.com',
-        password: 'StrongPassword123!',
+        password: hashedUserPassword,
         name: 'Login User',
       }
 
@@ -160,7 +161,7 @@ describe('AuthController (E2E)', () => {
       // 2. Agora, tenta fazer o login com as credenciais corretas
       return (request(app.getHttpServer()) as any)
         .post('/auth/login')
-        .send({ email: user.email, password: user.password })
+        .send({ email: user.email, password: 'StrongPassword123' })
         .expect(HttpStatus.OK)
         .then((response) => {
           expect(response.body).toHaveProperty('access_token')

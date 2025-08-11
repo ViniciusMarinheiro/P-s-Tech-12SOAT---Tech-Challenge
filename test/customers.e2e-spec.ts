@@ -1,14 +1,14 @@
 import 'crypto'
-import { Test, TestingModule } from '@nestjs/testing'
-import { INestApplication, HttpStatus } from '@nestjs/common'
-import * as request from 'supertest'
-import { AppModule } from '../src/app.module'
-import { TypeOrmModule } from '@nestjs/typeorm'
-import { Repository } from 'typeorm'
-import { User } from '../src/modules/users/entities/user.entity'
-import { Customer } from '../src/modules/customers/entities/customer.entity'
-import { UserRole } from '../src/modules/auth/enums/user-role.enum'
-import { CreateCustomerDto } from '../src/modules/customers/dto/create-customer.dto'
+import { Test, TestingModule } from '@nestjs/testing';
+import { INestApplication, HttpStatus } from '@nestjs/common';
+import * as request from 'supertest';
+import { AppModule } from '../src/app.module';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import { User } from '../src/modules/users/entities/user.entity';
+import { Customer } from '../src/modules/customers/entities/customer.entity';
+import { UserRole } from '../src/modules/auth/enums/user-role.enum';
+import { CreateCustomerDto } from '../src/modules/customers/dto/create-customer.dto';
 
 describe('CustomersController (E2E)', () => {
   let app: INestApplication
@@ -56,20 +56,16 @@ describe('CustomersController (E2E)', () => {
 
       customerUser = await userRepository.save({
         email: 'user@test.com',
-        password: hashedPassword,
-        name: 'Customer User',
-        role: UserRole.ATTENDANT,
-      })
-    }
+        password: 'password123',
+      });
 
-    // Fazer login como admin
-    const loginResponseAdmin = await (request(app.getHttpServer()) as any)
+    const loginResponseAdmin = await request(app.getHttpServer())
       .post('/auth/login')
       .send({
         email: 'admin@test.com',
         password: 'password123',
-      })
-    jwtTokenAdmin = loginResponseAdmin.body.access_token
+      });
+    jwtTokenAdmin = loginResponseAdmin.body.access_token;
 
     // Fazer login como customer
     const loginResponseCustomer = await (request(app.getHttpServer()) as any)
@@ -121,9 +117,9 @@ describe('CustomersController (E2E)', () => {
         .post('/customers')
         .set('Authorization', `Bearer ${jwtTokenCustomer}`)
         .send(createCustomerDto)
-        .expect(HttpStatus.BAD_REQUEST)
-    })
-  })
+        .expect(HttpStatus.BAD_REQUEST);
+    });
+  });
 
   describe('/customers (GET)', () => {
     it('should return a list of customers when user is authenticated', async () => {
