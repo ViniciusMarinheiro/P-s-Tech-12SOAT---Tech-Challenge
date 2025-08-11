@@ -1,3 +1,4 @@
+import 'crypto'
 import { Test, TestingModule } from '@nestjs/testing';
 import { INestApplication, ValidationPipe, HttpStatus } from '@nestjs/common';
 import * as request from 'supertest';
@@ -6,6 +7,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { User } from '../src/modules/users/entities/user.entity';
 import { Repository } from 'typeorm';
 import { RegisterDto } from '../src/modules/auth/dtos/register.dto';
+import { getRepositoryToken } from '@nestjs/typeorm';
 
 describe('AuthController (E2E)', () => {
   let app: INestApplication;
@@ -13,22 +15,14 @@ describe('AuthController (E2E)', () => {
 
   beforeAll(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
-      imports: [
-        AppModule,
-        TypeOrmModule.forRoot({
-          type: 'sqlite',
-          database: ':memory:', // Isso garante um banco de dados limpo e em RAM
-          entities: [User],
-          synchronize: true, // Cria automaticamente as tabelas no início
-        }),
-      ],
+      imports: [AppModule],
     }).compile();
 
     app = moduleFixture.createNestApplication();
     app.useGlobalPipes(new ValidationPipe());
     await app.init();
 
-    userRepository = moduleFixture.get('UserRepository');
+    userRepository = moduleFixture.get<Repository<User>>(getRepositoryToken(User));
   });
 
   beforeEach(async () => {

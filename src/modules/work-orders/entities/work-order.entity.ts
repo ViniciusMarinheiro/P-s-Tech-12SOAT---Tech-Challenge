@@ -28,7 +28,7 @@ export class WorkOrder {
   hashView: string
 
   @Column({
-    type: 'enum',
+    type: 'simple-enum',
     enum: WorkOrderStatusEnum,
     default: WorkOrderStatusEnum.RECEIVED,
   })

@@ -118,6 +118,4 @@ describe('AuthController', () => {
     await expect(controller.login({ user: mockUser })).rejects.toThrow('Unexpected failure')
     expect(authService.login).toHaveBeenCalledWith(mockUser)
     })
-
-
 })
