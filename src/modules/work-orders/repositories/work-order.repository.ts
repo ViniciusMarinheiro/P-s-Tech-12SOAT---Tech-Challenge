@@ -420,4 +420,21 @@ export class WorkOrderRepository extends WorkOrderRepositoryPort {
     })
     return workOrder ? this.mapWorkOrderWithRelations(workOrder) : null
   }
+
+  async updateFinishedAt(id: number, finishedAt: Date): Promise<WorkOrderResponseDto> {
+    await this.workOrderRepository.update(id, { finishedAt })
+    const updatedWorkOrder = await this.workOrderRepository.findOne({
+      where: { id },
+      relations: this.workOrderRelations,
+    })
+
+    if (!updatedWorkOrder) {
+      throw new CustomException(
+        ErrorMessages.WORK_ORDER?.NOT_FOUND?.(id) ||
+          `Ordem de serviço com ID ${id} não encontrada`,
+      )
+    }
+
+    return this.mapWorkOrderWithRelations(updatedWorkOrder)
+  }
 }
