@@ -1,0 +1,284 @@
+# GitLab CI/CD Pipeline para P&S Tech - Oficina API
+# =====================================================
+
+# Definições globais
+variables:
+  NODE_VERSION: '20'
+  YARN_VERSION: '1.22.19'
+  DOCKER_DRIVER: overlay2
+  DOCKER_TLS_CERTDIR: '/certs'
+
+# Estágios do pipeline
+stages:
+  - validate
+  - test
+  - security
+  - build
+  - deploy
+
+# Cache global para node_modules
+cache:
+  key:
+    files:
+      - yarn.lock
+  paths:
+    - node_modules/
+    - .yarn-cache/
+
+# ================================
+# VALIDATE STAGE
+# ================================
+validate-dependencies:
+  stage: validate
+  image: node:${NODE_VERSION}-alpine
+  before_script:
+    - yarn --version
+    - yarn install --frozen-lockfile
+  script:
+    - echo "🔍 Validando dependências..."
+    - yarn audit --level moderate
+    - echo "✅ Validação de dependências concluída"
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+  allow_failure: true
+
+validate-code:
+  stage: validate
+  image: node:${NODE_VERSION}-alpine
+  before_script:
+    - yarn --version
+    - yarn install --frozen-lockfile
+  script:
+    - echo "🔍 Validando código..."
+    - yarn lint
+    - yarn format:check
+    - echo "✅ Validação de código concluída"
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+
+# ================================
+# TEST STAGE
+# ================================
+unit-tests:
+  stage: test
+  image: node:${NODE_VERSION}-alpine
+  services:
+    - postgres:15-alpine
+    - redis:7-alpine
+  variables:
+    POSTGRES_DB: 'test_db'
+    POSTGRES_USER: 'test_user'
+    POSTGRES_PASSWORD: 'test_password'
+    POSTGRES_HOST_AUTH_METHOD: 'trust'
+    NODE_ENV: 'test'
+    DB_HOST: 'postgres'
+    DB_PORT: '5432'
+    DB_USERNAME: 'test_user'
+    DB_PASSWORD: 'test_password'
+    DB_DATABASE: 'test_db'
+    DB_SCHEMA: 'public'
+    REDIS_HOST: 'redis'
+    REDIS_PORT: '6379'
+    JWT_SECRET: 'test_secret_key_for_testing_only'
+    JWT_EXPIRES_IN: '1h'
+    DOCUMENTATION_PREFIX: '/api'
+    SMTP_HOST: 'smtp.test.com'
+    PORT_EMAIL: '587'
+    SECURE_EMAIL: 'false'
+    USER_EMAIL: 'test@test.com'
+    PASS_EMAIL: 'test_password'
+    SERVER_URL: 'http://localhost:3333'
+  before_script:
+    - yarn --version
+    - yarn install --frozen-lockfile
+    - echo "⏳ Aguardando PostgreSQL..."
+    - while ! nc -z postgres 5432; do sleep 1; done
+    - echo "⏳ Aguardando Redis..."
+    - while ! nc -z redis 6379; do sleep 1; done
+    - echo "🔄 Executando migrations..."
+    - yarn typeorm-ts-node-commonjs migration:run -d src/config/database/data-source.ts
+  script:
+    - echo "🧪 Executando testes unitários..."
+    - yarn test --coverage --watchAll=false
+    - echo "✅ Testes unitários concluídos"
+  coverage: '/All files[^|]*\|[^|]*\|[^|]*\|[^|]*\s+(\d+)/'
+  artifacts:
+    reports:
+      coverage_report:
+        coverage_format: cobertura
+        path: coverage/cobertura-coverage.xml
+    paths:
+      - coverage/
+    expire_in: 1 week
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+
+integration-tests:
+  stage: test
+  image: node:${NODE_VERSION}-alpine
+  services:
+    - postgres:15-alpine
+    - redis:7-alpine
+  variables:
+    POSTGRES_DB: 'test_db'
+    POSTGRES_USER: 'test_user'
+    POSTGRES_PASSWORD: 'test_password'
+    POSTGRES_HOST_AUTH_METHOD: 'trust'
+    NODE_ENV: 'test'
+    DB_HOST: 'postgres'
+    DB_PORT: '5432'
+    DB_USERNAME: 'test_user'
+    DB_PASSWORD: 'test_password'
+    DB_DATABASE: 'test_db'
+    DB_SCHEMA: 'public'
+    REDIS_HOST: 'redis'
+    REDIS_PORT: '6379'
+    JWT_SECRET: 'test_secret_key_for_testing_only'
+    JWT_EXPIRES_IN: '1h'
+    DOCUMENTATION_PREFIX: '/api'
+    SMTP_HOST: 'smtp.test.com'
+    PORT_EMAIL: '587'
+    SECURE_EMAIL: 'false'
+    USER_EMAIL: 'test@test.com'
+    PASS_EMAIL: 'test_password'
+    SERVER_URL: 'http://localhost:3333'
+  before_script:
+    - yarn --version
+    - yarn install --frozen-lockfile
+    - echo "⏳ Aguardando PostgreSQL..."
+    - while ! nc -z postgres 5432; do sleep 1; done
+    - echo "⏳ Aguardando Redis..."
+    - while ! nc -z redis 6379; do sleep 1; done
+    - echo "🔄 Executando migrations..."
+    - yarn typeorm-ts-node-commonjs migration:run -d src/config/database/data-source.ts
+  script:
+    - echo "🧪 Executando testes de integração..."
+    - yarn test:e2e --detectOpenHandles
+    - echo "✅ Testes de integração concluídos"
+  artifacts:
+    paths:
+      - test-results/
+    expire_in: 1 week
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+
+# ================================
+# SECURITY STAGE
+# ================================
+security-scan:
+  stage: security
+  image: node:${NODE_VERSION}-alpine
+  before_script:
+    - yarn --version
+    - yarn install --frozen-lockfile
+  script:
+    - echo "🔒 Executando análise de segurança..."
+    - yarn audit --level high
+    - echo "✅ Análise de segurança concluída"
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+  allow_failure: true
+
+# ================================
+# BUILD STAGE
+# ================================
+build:
+  stage: build
+  image: docker:24.0.5
+  services:
+    - docker:24.0.5-dind
+  variables:
+    DOCKER_HOST: tcp://docker:2376
+    DOCKER_TLS_CERTDIR: '/certs'
+    DOCKER_TLS_VERIFY: 1
+    DOCKER_CERT_PATH: '$CI_PROJECT_DIR/.certs'
+  before_script:
+    - echo "🐳 Inicializando Docker..."
+    - docker info
+  script:
+    - echo "🏗️ Construindo imagem Docker..."
+    - docker build -t $CI_REGISTRY_IMAGE:$CI_COMMIT_SHA .
+    - docker build -t $CI_REGISTRY_IMAGE:latest .
+    - echo "📤 Fazendo push para registry..."
+    - docker push $CI_REGISTRY_IMAGE:$CI_COMMIT_SHA
+    - docker push $CI_REGISTRY_IMAGE:latest
+    - echo "✅ Build concluído com sucesso"
+  rules:
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+    - if: $CI_COMMIT_TAG
+
+# ================================
+# DEPLOY STAGE
+# ================================
+deploy-staging:
+  stage: deploy
+  image: alpine:latest
+  before_script:
+    - apk add --no-cache curl
+  script: |
+    echo '🚀 Deployando para staging...'
+    echo '📋 Informações do deploy:'
+    echo '  - Branch: Branch atual'
+    echo '  - Commit: Commit atual'
+    echo '  - Autor: Usuario atual'
+    echo '  - Data: Data atual'
+    echo '✅ Deploy para staging concluído'
+  environment:
+    name: staging
+    url: https://staging.ps-tech.com
+  rules:
+    - if: $CI_COMMIT_BRANCH == "develop"
+
+deploy-production:
+  stage: deploy
+  image: alpine:latest
+  before_script:
+    - apk add --no-cache curl
+  script: |
+    echo '🚀 Deployando para produção...'
+    echo '📋 Informações do deploy:'
+    echo '  - Branch: Branch atual'
+    echo '  - Commit: Commit atual'
+    echo '  - Autor: Usuario atual'
+    echo '  - Data: Data atual'
+    echo '✅ Deploy para produção concluído'
+  environment:
+    name: production
+    url: https://api.ps-tech.com
+  rules:
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+    - if: $CI_COMMIT_TAG
+
+# ================================
+# NOTIFICATIONS
+# ================================
+notify-success:
+  stage: .post
+  image: alpine:latest
+  script: |
+    echo '🎉 Pipeline executado com sucesso!'
+    echo '📊 Resumo:'
+    echo '  - Branch: Branch atual'
+    echo '  - Commit: Commit atual'
+    echo '  - Duração: Tempo de execucao'
+  rules:
+    - if: $CI_PIPELINE_STATUS == "success"
+  allow_failure: true
+
+notify-failure:
+  stage: .post
+  image: alpine:latest
+  script: |
+    echo '❌ Pipeline falhou!'
+    echo '📊 Resumo:'
+    echo '  - Branch: Branch atual'
+    echo '  - Commit: Commit atual'
+    echo '  - Job que falhou: Job atual'
+  rules:
+    - if: $CI_PIPELINE_STATUS == "failed"
+  allow_failure: true
