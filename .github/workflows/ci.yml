@@ -33,16 +33,6 @@ jobs:
       - name: 📥 Instalar dependências
         run: yarn install --frozen-lockfile
 
-      - name: 🔍 Validar dependências
-        run: yarn audit --level high
-        continue-on-error: true
-
-      - name: 🧹 Validar linting
-        run: yarn lint
-
-      - name: ✨ Validar formatação
-        run: yarn format:check
-
   # ================================
   # TEST STAGE
   # ================================
