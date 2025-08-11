@@ -60,4 +60,10 @@ export class WorkOrder {
 
   @OneToMany('WorkOrderPart', 'workOrder')
   workOrderParts: any[]
+
+  @Column({ type: 'timestamp', name: 'started_at', nullable: false, default: () => 'CURRENT_TIMESTAMP' })
+  startedAt: Date
+
+  @Column({ type: 'timestamp', name: 'finished_at', nullable: true})
+  finishedAt: Date
 }
