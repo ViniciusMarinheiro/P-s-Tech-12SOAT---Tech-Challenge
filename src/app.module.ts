@@ -18,6 +18,8 @@ import { WorkOrdersModule } from './modules/work-orders/work-orders.module'
 import { BullModule } from '@nestjs/bullmq'
 import { EmailProviderModule } from './providers/email/email.provider.module'
 
+const isTest = process.env.NODE_ENV === 'test';
+
 @Module({
   imports: [
     ConfigModule.forRoot({

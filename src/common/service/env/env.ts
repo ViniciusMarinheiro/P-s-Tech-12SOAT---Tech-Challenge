@@ -10,7 +10,7 @@ export const envSchema = z.object({
   JWT_SECRET: z.string(),
   JWT_EXPIRES_IN: z.string(),
   PORT: z.string().default('3333'),
-  NODE_ENV: z.enum(['development', 'production']).default('development'),
+  NODE_ENV: z.enum(['development', 'production', 'test']).default('development'),
   DOCUMENTATION_PREFIX: z.string(),
   SMTP_HOST: z.string(),
   PORT_EMAIL: z.string().transform((val) => parseInt(val, 10)),
