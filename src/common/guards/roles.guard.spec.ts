@@ -36,7 +36,7 @@ describe('RolesGuard', () => {
   describe('canActivate', () => {
     it('should return TRUE if no roles are required for the route', () => {
       // Cenário 1: O reflector não retorna roles, então a rota é "pública" em termos de roles
-      const context = createMockContext({ role: UserRole.CUSTOMER }, null)
+      const context = createMockContext({ role: UserRole.ATTENDANT }, null)
       expect(guard.canActivate(context)).toBe(true)
     })
 
@@ -50,16 +50,16 @@ describe('RolesGuard', () => {
 
     it('should return TRUE if the user has at least one of the required roles', () => {
       // Cenário 3: Rota exige ADMIN ou MANAGER, e o usuário é MANAGER
-      const requiredRoles = [UserRole.ADMIN, 'MANAGER' as UserRole]
-      const user = { role: 'MANAGER' as UserRole }
+      const requiredRoles = [UserRole.ADMIN, UserRole.ATTENDANT]
+      const user = { role: UserRole.ATTENDANT }
       const context = createMockContext(user, requiredRoles)
       expect(guard.canActivate(context)).toBe(true)
     })
 
     it('should return FALSE if the user does not have the required role', () => {
-      // Cenário 4: Rota exige ADMIN, mas o usuário é USER
+      // Cenário 4: Rota exige ADMIN, mas o usuário é ATTENDANT
       const requiredRoles = [UserRole.ADMIN]
-      const user = { role: UserRole.CUSTOMER }
+      const user = { role: UserRole.ATTENDANT }
       const context = createMockContext(user, requiredRoles)
       expect(guard.canActivate(context)).toBe(false)
     })
@@ -71,6 +71,5 @@ describe('RolesGuard', () => {
       const context = createMockContext(user, requiredRoles)
       expect(guard.canActivate(context)).toBe(false)
     })
-
   })
 })

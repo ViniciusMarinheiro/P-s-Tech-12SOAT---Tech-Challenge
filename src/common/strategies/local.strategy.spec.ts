@@ -32,7 +32,13 @@ describe('LocalStrategy', () => {
       // 1. Preparamos o cenário de sucesso
       const email = 'test@example.com'
       const password = 'password123'
-      const user = { id: 1, email, name: 'Test User', auth: { strategy: 'local' }, role: UserRole.CUSTOMER }
+      const user = {
+        id: 1,
+        email,
+        name: 'Test User',
+        auth: { strategy: 'local' },
+        role: UserRole.ATTENDANT,
+      }
 
       // Configuramos o mock para retornar o usuário
       authService.validateUser.mockResolvedValue(user)

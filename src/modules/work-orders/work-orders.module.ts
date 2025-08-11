@@ -12,6 +12,7 @@ import { CustomersModule } from '../customers/customers.module'
 import { ServicesModule } from '../services/services.module'
 import { PartsModule } from '../parts/parts.module'
 import { EmailProviderModule } from '@/providers/email/email.provider.module'
+import { EnvConfigService } from '@/common/service/env/env-config.service'
 
 @Module({
   imports: [
@@ -25,6 +26,7 @@ import { EmailProviderModule } from '@/providers/email/email.provider.module'
   controllers: [WorkOrdersController],
   providers: [
     WorkOrdersService,
+    EnvConfigService,
     {
       provide: WorkOrderRepositoryPort,
       useClass: WorkOrderRepository,

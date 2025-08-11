@@ -13,6 +13,7 @@ import { PartsService } from '../parts/parts.service'
 import { convertToCents } from '@/common/utils/convert-to-cents'
 import { WorkOrderFilterDto } from './dto/work-order-filter.dto'
 import { SendEmailQueueProvider } from '@/providers/email/job/send-email-queue/send-email-queue.provider'
+import { EnvConfigService } from '@/common/service/env/env-config.service'
 
 @Injectable()
 export class WorkOrdersService {
@@ -23,6 +24,7 @@ export class WorkOrdersService {
     private readonly servicesService: ServicesService,
     private readonly partsService: PartsService,
     private readonly sendEmailQueueProvider: SendEmailQueueProvider,
+    private readonly envConfigService: EnvConfigService,
   ) {}
 
   async create(
@@ -153,7 +155,41 @@ export class WorkOrdersService {
       await this.sendEmailQueueProvider.execute({
         recipient: workOrder.customer.email,
         subject: `Ordem de serviço ${workOrder.id} - Finalizada`,
-        body: `A ordem de serviço ${workOrder.id} foi finalizada com sucesso, você pode retirar seu veículo no local!`,
+        body: `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; background-color: #f9f9f9;">
+          <div style="background-color: #ffffff; padding: 30px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
+            <h2 style="color: #27ae60; margin-bottom: 20px; text-align: center; border-bottom: 3px solid #27ae60; padding-bottom: 10px;">
+              🎉 Ordem de Serviço #${workOrder.id} - Finalizada!
+            </h2>
+            
+            <div style="background-color: #d5f4e6; padding: 20px; border-radius: 6px; margin-bottom: 25px; text-align: center;">
+              <p style="color: #27ae60; font-size: 18px; font-weight: bold; margin: 0;">
+                ✅ Seu veículo está pronto para retirada!
+              </p>
+            </div>
+            
+            <p style="color: #34495e; font-size: 16px; line-height: 1.6; margin-bottom: 25px;">
+              A ordem de serviço foi finalizada com sucesso. Seu veículo está pronto e pode ser retirado no local.
+            </p>
+            
+            <div style="background-color: #ecf0f1; padding: 20px; border-radius: 6px; margin-bottom: 25px;">
+              <h3 style="color: #2c3e50; margin-top: 0; margin-bottom: 15px;">📋 Detalhes da Ordem</h3>
+              <p style="margin: 10px 0; color: #34495e;"><strong>Número da Ordem:</strong> #${workOrder.id}</p>
+              <p style="margin: 10px 0; color: #34495e;"><strong>Status:</strong> <span style="color: #27ae60; font-weight: bold;">Finalizada</span></p>
+              <p style="margin: 10px 0; color: #34495e;"><strong>Valor Total:</strong> R$ ${workOrder.totalAmount}</p>
+            </div>
+            
+            <div style="background-color: #2c3e50; color: #ffffff; padding: 20px; border-radius: 6px; text-align: center; margin-bottom: 25px;">
+              <h3 style="margin: 0 0 10px 0; font-size: 18px;">🚗 Próximos Passos</h3>
+              <p style="margin: 0; font-size: 16px;">Dirija-se ao local para retirar seu veículo</p>
+            </div>
+            
+            <p style="color: #7f8c8d; font-size: 14px; text-align: center; margin-top: 25px; border-top: 1px solid #ecf0f1; padding-top: 20px;">
+              Obrigado por escolher nossos serviços! 🚀
+            </p>
+          </div>
+        </div>
+        `,
       })
     }
 
@@ -162,14 +198,216 @@ export class WorkOrdersService {
         this.sendEmailQueueProvider.execute({
           recipient: workOrder.customer.email,
           subject: `Ordem de serviço ${workOrder.id} - Em andamento`,
-          body: `A ordem de serviço ${workOrder.id} foi iniciada com sucesso, você pode retirar seu veículo no local!`,
+          body: `
+          <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; background-color: #f9f9f9;">
+            <div style="background-color: #ffffff; padding: 30px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
+              <h2 style="color: #f39c12; margin-bottom: 20px; text-align: center; border-bottom: 3px solid #f39c12; padding-bottom: 10px;">
+                🔧 Ordem de Serviço #${workOrder.id} - Em Andamento
+              </h2>
+              
+              <div style="background-color: #fef9e7; padding: 20px; border-radius: 6px; margin-bottom: 25px; text-align: center;">
+                <p style="color: #f39c12; font-size: 18px; font-weight: bold; margin: 0;">
+                  ⚡ Trabalho iniciado com sucesso!
+                </p>
+              </div>
+              
+              <p style="color: #34495e; font-size: 16px; line-height: 1.6; margin-bottom: 25px;">
+                Sua ordem de serviço foi confirmada e está sendo executada. Nossa equipe está trabalhando para entregar o melhor resultado.
+              </p>
+              
+              <div style="background-color: #ecf0f1; padding: 20px; border-radius: 6px; margin-bottom: 25px;">
+                <h3 style="color: #2c3e50; margin-top: 0; margin-bottom: 15px;">📊 Status Atual</h3>
+                <p style="margin: 10px 0; color: #34495e;"><strong>Número da Ordem:</strong> #${workOrder.id}</p>
+                <p style="margin: 10px 0; color: #34495e;"><strong>Status:</strong> <span style="color: #f39c12; font-weight: bold;">Em Andamento</span></p>
+                <p style="margin: 10px 0; color: #34495e;"><strong>Valor Total:</strong> R$ ${workOrder.totalAmount}</p>
+              </div>
+              
+              <div style="background-color: #2c3e50; color: #ffffff; padding: 20px; border-radius: 6px; text-align: center; margin-bottom: 25px;">
+                <h3 style="margin: 0 0 10px 0; font-size: 18px;">⏰ Acompanhamento</h3>
+                <p style="margin: 0; font-size: 16px;">Você será notificado automaticamente quando o serviço for finalizado</p>
+              </div>
+              
+              <p style="color: #7f8c8d; font-size: 14px; text-align: center; margin-top: 25px; border-top: 1px solid #ecf0f1; padding-top: 20px;">
+                Estamos trabalhando para você! 🚗💨
+              </p>
+            </div>
+          </div>
+          `,
         }),
         this.sendEmailQueueProvider.execute({
           recipient: workOrder.user.email,
-          subject: `Ordem de serviço ${workOrder.id}`,
-          body: `A ordem de serviço ${workOrder.id} foi confirmada e está em andamento`,
+          subject: `Ordem de serviço ${workOrder.id} - Confirmada`,
+          body: `
+          <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; background-color: #f9f9f9;">
+            <div style="background-color: #ffffff; padding: 30px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
+              <h2 style="color: #3498db; margin-bottom: 20px; text-align: center; border-bottom: 3px solid #3498db; padding-bottom: 10px;">
+                📋 Ordem de Serviço #${workOrder.id} - Confirmada
+              </h2>
+              
+              <div style="background-color: #ebf3fd; padding: 20px; border-radius: 6px; margin-bottom: 25px; text-align: center;">
+                <p style="color: #3498db; font-size: 18px; font-weight: bold; margin: 0;">
+                  ✅ Ordem aprovada pelo cliente!
+                </p>
+              </div>
+              
+              <p style="color: #34495e; font-size: 16px; line-height: 1.6; margin-bottom: 25px;">
+                A ordem de serviço foi confirmada pelo cliente e está em andamento. Você pode prosseguir com a execução dos serviços.
+              </p>
+              
+              <div style="background-color: #ecf0f1; padding: 20px; border-radius: 6px; margin-bottom: 25px;">
+                <h3 style="color: #2c3e50; margin-top: 0; margin-bottom: 15px;">📊 Detalhes da Ordem</h3>
+                <p style="margin: 10px 0; color: #34495e;"><strong>Número da Ordem:</strong> #${workOrder.id}</p>
+                <p style="margin: 10px 0; color: #34495e;"><strong>Cliente:</strong> ${workOrder.customer.name}</p>
+                <p style="margin: 10px 0; color: #34495e;"><strong>Veículo:</strong> Placa ${workOrder.vehicle.plate}</p>
+                <p style="margin: 10px 0; color: #34495e;"><strong>Status:</strong> <span style="color: #3498db; font-weight: bold;">Em Andamento</span></p>
+              </div>
+              
+              <div style="background-color: #2c3e50; color: #ffffff; padding: 20px; border-radius: 6px; text-align: center; margin-bottom: 25px;">
+                <h3 style="margin: 0 0 10px 0; font-size: 18px;">🚀 Próximos Passos</h3>
+                <p style="margin: 0; font-size: 16px;">Execute os serviços conforme especificado na ordem</p>
+              </div>
+              
+              <p style="color: #7f8c8d; font-size: 14px; text-align: center; margin-top: 25px; border-top: 1px solid #ecf0f1; padding-top: 20px;">
+                Bom trabalho! 💪🔧
+              </p>
+            </div>
+          </div>
+          `,
         }),
       ])
+    }
+
+    if (
+      workOrder.status === WorkOrderStatusEnum.DIAGNOSING &&
+      status === WorkOrderStatusEnum.AWAITING_APPROVAL
+    ) {
+      await this.sendEmailQueueProvider.execute({
+        recipient: workOrder.customer.email,
+        subject: `Ordem de serviço ${workOrder.id} - Aguardando aprovação`,
+        body: `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; background-color: #f9f9f9;">
+          <div style="background-color: #ffffff; padding: 30px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
+            <h2 style="color: #2c3e50; margin-bottom: 20px; text-align: center; border-bottom: 3px solid #3498db; padding-bottom: 10px;">
+              🚗 Ordem de Serviço #${workOrder.id} - Aguardando Aprovação
+            </h2>
+            
+            <p style="color: #34495e; font-size: 16px; line-height: 1.6; margin-bottom: 25px;">
+              A ordem de serviço foi diagnosticada com sucesso e agora está aguardando sua aprovação para prosseguir com a execução.
+            </p>
+            
+            <div style="background-color: #ecf0f1; padding: 20px; border-radius: 6px; margin-bottom: 25px;">
+              <h3 style="color: #2c3e50; margin-top: 0; margin-bottom: 15px;">📋 Resumo dos Serviços</h3>
+              ${workOrder.services
+                .map(
+                  (service) => `
+                <div style="margin-bottom: 10px; padding: 10px; background-color: #ffffff; border-left: 4px solid #3498db; border-radius: 4px;">
+                  <strong>${service.serviceName}</strong><br>
+                  <span style="color: #7f8c8d;">Quantidade: ${service.quantity} | Preço: R$ ${service.totalPrice}</span>
+                </div>
+              `,
+                )
+                .join('')}
+            </div>
+            
+            <div style="background-color: #ecf0f1; padding: 20px; border-radius: 6px; margin-bottom: 25px;">
+              <h3 style="color: #2c3e50; margin-top: 0; margin-bottom: 15px;">🔧 Peças Utilizadas</h3>
+              ${workOrder.parts
+                .map(
+                  (part) => `
+                <div style="margin-bottom: 10px; padding: 10px; background-color: #ffffff; border-left: 4px solid #e74c3c; border-radius: 4px;">
+                  <strong>${part.partName}</strong><br>
+                  <span style="color: #7f8c8d;">Quantidade: ${part.quantity} | Preço: R$ ${part.totalPrice}</span>
+                </div>
+              `,
+                )
+                .join('')}
+            </div>
+            
+            <div style="background-color: #2c3e50; color: #ffffff; padding: 20px; border-radius: 6px; text-align: center; margin-bottom: 25px;">
+              <h3 style="margin: 0 0 10px 0; font-size: 20px;">💰 Valor Total</h3>
+              <p style="font-size: 24px; font-weight: bold; margin: 0; color: #f39c12;">R$ ${workOrder.totalAmount}</p>
+            </div>
+            
+            <div style="text-align: center; margin-top: 30px;">
+              <a href="${this.envConfigService.get('SERVER_URL_PREFIX')}/work-orders/approve/${workOrder.hashView}" 
+                 style="background-color: #27ae60; color: #ffffff; padding: 15px 30px; text-decoration: none; border-radius: 6px; font-weight: bold; font-size: 16px; display: inline-block;">
+                ✅ Aprovar Ordem de Serviço
+              </a>
+            </div>
+            
+            <p style="color: #7f8c8d; font-size: 14px; text-align: center; margin-top: 25px; border-top: 1px solid #ecf0f1; padding-top: 20px;">
+              Este é um email automático. Em caso de dúvidas, entre em contato conosco.
+            </p>
+          </div>
+        </div>
+        `,
+      })
+    }
+
+    if (status === WorkOrderStatusEnum.DELIVERED) {
+      await this.sendEmailQueueProvider.execute({
+        recipient: workOrder.customer.email,
+        subject: `Ordem de serviço ${workOrder.id} - Entregue com sucesso!`,
+        body: `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; background-color: #f9f9f9;">
+          <div style="background-color: #ffffff; padding: 30px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
+            <h2 style="color: #8e44ad; margin-bottom: 20px; text-align: center; border-bottom: 3px solid #8e44ad; padding-bottom: 10px;">
+              🎊 Ordem de Serviço #${workOrder.id} - Entregue!
+            </h2>
+            
+            <div style="background-color: #f4e6f7; padding: 20px; border-radius: 6px; margin-bottom: 25px; text-align: center;">
+              <p style="color: #8e44ad; font-size: 18px; font-weight: bold; margin: 0;">
+                🚗✨ Seu veículo foi entregue com sucesso!
+              </p>
+            </div>
+            
+            <p style="color: #34495e; font-size: 16px; line-height: 1.6; margin-bottom: 25px;">
+              É com grande satisfação que informamos que sua ordem de serviço foi concluída e entregue com excelência. 
+              Esperamos que você esteja satisfeito com o resultado do nosso trabalho.
+            </p>
+            
+            <div style="background-color: #ecf0f1; padding: 20px; border-radius: 6px; margin-bottom: 25px;">
+              <h3 style="color: #2c3e50; margin-top: 0; margin-bottom: 15px;">📋 Resumo da Ordem</h3>
+              <p style="margin: 10px 0; color: #34495e;"><strong>Número da Ordem:</strong> #${workOrder.id}</p>
+              <p style="margin: 10px 0; color: #34495e;"><strong>Status:</strong> <span style="color: #8e44ad; font-weight: bold;">Entregue</span></p>
+              <p style="margin: 10px 0; color: #34495e;"><strong>Valor Total:</strong> R$ ${workOrder.totalAmount}</p>
+              <p style="margin: 10px 0; color: #34495e;"><strong>Data de Entrega:</strong> ${new Date().toLocaleDateString('pt-BR')}</p>
+            </div>
+            
+            <div style="background-color: #2c3e50; color: #ffffff; padding: 20px; border-radius: 6px; text-align: center; margin-bottom: 25px;">
+              <h3 style="margin: 0 0 15px 0; font-size: 20px;">🙏 Obrigado pela Confiança!</h3>
+              <p style="margin: 0 0 15px 0; font-size: 16px;">
+                Foi um prazer atendê-lo e esperamos vê-lo novamente em breve!
+              </p>
+              <p style="margin: 0; font-size: 14px; color: #bdc3c7;">
+                Sua satisfação é nossa prioridade máxima
+              </p>
+            </div>
+            
+            <div style="background-color: #f8f9fa; padding: 20px; border-radius: 6px; margin-bottom: 25px; text-align: center;">
+              <h3 style="color: #2c3e50; margin-top: 0; margin-bottom: 15px;">⭐ Avalie Nossos Serviços</h3>
+              <p style="color: #7f8c8d; font-size: 14px; margin-bottom: 15px;">
+                Sua opinião é muito importante para nós continuarmos melhorando
+              </p>
+              <p style="color: #34495e; font-size: 16px; font-weight: bold;">
+                Recomende-nos aos seus amigos e familiares!
+              </p>
+            </div>
+            
+            <div style="text-align: center; margin-top: 30px;">
+              <p style="color: #7f8c8d; font-size: 14px; margin: 0;">
+                <strong>Equipe de Atendimento</strong><br>
+                Estamos sempre à disposição para ajudá-lo
+              </p>
+            </div>
+            
+            <p style="color: #7f8c8d; font-size: 14px; text-align: center; margin-top: 25px; border-top: 1px solid #ecf0f1; padding-top: 20px;">
+              Obrigado por escolher nossos serviços! 🚀💜
+            </p>
+          </div>
+        </div>
+        `,
+      })
     }
 
     await this.workOrderRepository.updateStatus(id, status)
@@ -183,6 +421,17 @@ export class WorkOrdersService {
       )
     }
     return workOrder
+  }
+
+  async approveHashView(hashView: string): Promise<void> {
+    const workOrder = await this.findByHashView(hashView)
+    try {
+      await this.updateStatus(workOrder.id, WorkOrderStatusEnum.IN_PROGRESS)
+    } catch (error) {
+      throw new CustomException(
+        `Erro ao aprovar ordem de serviço, você já aprovou está ordem de serviço`,
+      )
+    }
   }
 
   async getWorkOrderProgress(id: number): Promise<{
@@ -387,7 +636,7 @@ export class WorkOrdersService {
     const totalAmount = servicesTotal + partsTotal
 
     await this.workOrderRepository.update(workOrderId, {
-      totalAmount: totalAmount,
+      totalAmount: convertToCents(totalAmount),
     } as any)
   }
 }

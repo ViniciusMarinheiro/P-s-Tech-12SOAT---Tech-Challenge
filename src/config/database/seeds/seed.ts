@@ -48,7 +48,7 @@ async function seed() {
       name: 'João Silva',
       email: 'joao@email.com',
       password: hashedPassword,
-      role: UserRole.CUSTOMER,
+      role: UserRole.ATTENDANT,
     })
 
     const savedAdmin = await AppDataSource.getRepository(User).save(adminUser)

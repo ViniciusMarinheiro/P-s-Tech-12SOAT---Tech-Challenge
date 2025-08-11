@@ -17,8 +17,9 @@ import { PartsModule } from './modules/parts/parts.module'
 import { WorkOrdersModule } from './modules/work-orders/work-orders.module'
 import { BullModule } from '@nestjs/bullmq'
 import { EmailProviderModule } from './providers/email/email.provider.module'
+import { RolesGuard } from './common/guards'
 
-const isTest = process.env.NODE_ENV === 'test';
+const isTest = process.env.NODE_ENV === 'test'
 
 @Module({
   imports: [
@@ -66,6 +67,10 @@ const isTest = process.env.NODE_ENV === 'test';
     {
       provide: APP_GUARD,
       useClass: GlobalJwtAuthGuard,
+    },
+    {
+      provide: APP_GUARD,
+      useClass: RolesGuard,
     },
   ],
   exports: [EnvConfigService],

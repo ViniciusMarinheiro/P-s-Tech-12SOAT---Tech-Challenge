@@ -26,6 +26,8 @@ import { UserProfileDto } from './dtos/user-profile.dto'
 import { AuthUser } from './interfaces/auth-response.interface'
 import { CurrentUser } from '../../common/decorators/current-user.decorator'
 import { Public } from '../../common/decorators/public.decorator'
+import { Roles } from '@/common/decorators'
+import { UserRole } from './enums/user-role.enum'
 
 @ApiTags('Autenticação')
 @ApiBearerAuth('Bearer')
@@ -63,11 +65,11 @@ export class AuthController {
     return this.authService.login(req.user)
   }
 
-  @Public()
+  @Roles(UserRole.ADMIN)
   @ApiOperation({
     summary: 'Registrar novo usuário',
     description:
-      'Cria um novo usuário no sistema com as informações fornecidas',
+      'Cria um novo usuário no sistema com as informações fornecidas, apenas administradores podem criar usuários',
   })
   @ApiResponse({
     status: HttpStatus.CREATED,

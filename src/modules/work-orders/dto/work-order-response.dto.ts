@@ -169,6 +169,12 @@ export class WorkOrderResponseDto {
   vehicleId: number
 
   @ApiProperty({
+    description: 'Hash de visualização da ordem de serviço',
+    example: '1234567890',
+  })
+  hashView: string
+
+  @ApiProperty({
     description: 'Status da ordem de serviço',
     enum: WorkOrderStatusEnum,
     example: WorkOrderStatusEnum.IN_PROGRESS,
