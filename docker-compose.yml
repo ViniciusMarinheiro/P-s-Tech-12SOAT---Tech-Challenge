@@ -60,15 +60,6 @@ services:
         condition: service_healthy
     networks:
       - oficina-network
-    command: >
-      sh -c "
-        echo 'Aguardando PostgreSQL estar pronto...' &&
-        sleep 10 &&
-        echo 'Executando migrações...' &&
-        npx typeorm migration:run -d dist/config/database/data-source.js &&
-        echo 'Iniciando aplicação...' &&
-        node dist/main.js
-      "
     healthcheck:
       test:
         [

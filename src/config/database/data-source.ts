@@ -29,7 +29,10 @@ export const AppDataSource = new DataSource({
     WorkOrderPart,
     User,
   ],
-  migrations: ['src/migrations/*.ts'],
+  migrations:
+    process.env.NODE_ENV === 'production'
+      ? ['dist/src/migrations/*.js']
+      : ['src/migrations/*.ts'],
   synchronize: false,
   logging: process.env.NODE_ENV !== 'production',
 })
