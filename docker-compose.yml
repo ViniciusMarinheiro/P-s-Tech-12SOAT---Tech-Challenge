@@ -53,6 +53,7 @@ services:
       - USER_EMAIL="junioryrj@gmail.com"
       - BBC_EMAIL="rodrigo.franco@unifio.edu.br"
       - PASS_EMAIL="oyjn prnc rfcy zfqz"
+      - SERVER_URL=http://localhost:3333
     ports:
       - '3333:3333'
     depends_on:

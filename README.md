@@ -1,25 +1,27 @@
 # 🛠️ Sistema Integrado de Atendimento e Execução de Serviços - Oficina Mecânica FullStack Motors
 
 ## 📌 Contexto
+
 Uma oficina mecânica de médio porte, especializada em manutenção de veículos, tem enfrentado desafios para expandir seus serviços com qualidade e eficiência.
 
 Atualmente, o processo de atendimento, diagnóstico, execução de serviços e entrega dos veículos é feito de forma **desorganizada**, utilizando anotações manuais e planilhas, gerando problemas como:
 
-- ❌ Erros na priorização dos atendimentos  
-- ❌ Falhas no controle de peças e insumos  
-- ❌ Dificuldade em acompanhar o status dos serviços  
-- ❌ Perda de histórico de clientes e veículos  
-- ❌ Ineficiência no fluxo de orçamentos e autorizações  
+- ❌ Erros na priorização dos atendimentos
+- ❌ Falhas no controle de peças e insumos
+- ❌ Dificuldade em acompanhar o status dos serviços
+- ❌ Perda de histórico de clientes e veículos
+- ❌ Ineficiência no fluxo de orçamentos e autorizações
 
 Para resolver essas questões, a oficina decidiu investir em um **Sistema Integrado de Atendimento e Execução de Serviços**, permitindo:
 
-- 📲 Clientes acompanharem em tempo real o andamento dos serviços  
-- ✅ Aprovação de reparos adicionais via aplicativo  
-- ⚙️ Gestão interna mais eficiente, organizada e segura  
+- 📲 Clientes acompanharem em tempo real o andamento dos serviços
+- ✅ Aprovação de reparos adicionais via aplicativo
+- ⚙️ Gestão interna mais eficiente, organizada e segura
 
 ---
 
 ## 🎯 Objetivo do Projeto
+
 Desenvolver a **primeira versão (MVP)** do back-end do sistema, com foco em:
 
 - Gestão de **ordens de serviço (OS)**
@@ -33,6 +35,7 @@ Desenvolver a **primeira versão (MVP)** do back-end do sistema, com foco em:
 ## 🚀 Funcionalidades
 
 ### 📄 Criação da Ordem de Serviço (OS)
+
 - Identificação do cliente por **CPF/CNPJ**
 - Cadastro de veículo (**placa, marca, modelo, ano**)
 - Inclusão dos serviços solicitados (ex.: troca de óleo, alinhamento)
@@ -41,6 +44,7 @@ Desenvolver a **primeira versão (MVP)** do back-end do sistema, com foco em:
 - Envio do orçamento ao cliente para aprovação
 
 ### 📊 Acompanhamento da OS
+
 - Status possíveis:
   - Recebida
   - Em diagnóstico
@@ -52,6 +56,7 @@ Desenvolver a **primeira versão (MVP)** do back-end do sistema, com foco em:
 - Consulta pública via API para acompanhamento do progresso
 
 ### 🗂️ Gestão Administrativa
+
 - CRUD de clientes
 - CRUD de veículos
 - CRUD de serviços
@@ -62,6 +67,7 @@ Desenvolver a **primeira versão (MVP)** do back-end do sistema, com foco em:
 ---
 
 ## 🔐 Segurança e Qualidade
+
 - Autenticação **JWT** para APIs administrativas
 - Validação de dados sensíveis (**CPF, CNPJ, placa de veículo**)
 - Testes unitários e de integração para os principais fluxos
@@ -69,6 +75,7 @@ Desenvolver a **primeira versão (MVP)** do back-end do sistema, com foco em:
 ---
 
 ## 🏗️ Tecnologias Utilizadas
+
 - **Node.js / NestJS**
 - **TypeScript**
 - **PostgreSQL**
@@ -76,30 +83,46 @@ Desenvolver a **primeira versão (MVP)** do back-end do sistema, com foco em:
 - **Jest** (testes)
 - **JWT** (segurança)
 
-
 ---
 
 ## 🛠️ Como Executar o Projeto com Docker Compose
 
 ### Pré-requisitos
-- [Docker](https://www.docker.com/) instalado  
-- [Docker Compose](https://docs.docker.com/compose/) instalado  
+
+- [Docker](https://www.docker.com/) instalado
+- [Docker Compose](https://docs.docker.com/compose/) instalado
 
 ### Passos para execução
+
 1. Clone o repositório:
+
    ```bash
    git clone https://github.com/ViniciusMarinheiro/P-s-Tech-12SOAT---Tech-Challenge.git
+
+   ```
 
 2. Acesse a pasta do projeto:
    ```bash
    cd P-s-Tech-12SOAT---Tech-Challenge
+   ```
 3. Construa e inicie os containers:
+
    ```bash
    docker-compose up -d --build
 
-3. Acesse a aplicação na porta configurada:
+   ```
+
+4. Acesse a aplicação na porta configurada:
+
    ```bash
    http://localhost:3333/api/oficina
+
+   ```
+
+5. Acesse a documentação da aplicação:
+   ```bash
+   http://localhost:3333/api/v1/oficina/documentation
+   ```
 
 ## Descrição
 
