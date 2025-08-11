@@ -119,7 +119,6 @@ export class WorkOrdersController {
   @ApiResponse({
     status: 200,
     description: 'Ordem de serviço atualizada com sucesso',
-    type: WorkOrderResponseDto,
   })
   @ApiParam({
     name: 'id',
@@ -138,7 +137,6 @@ export class WorkOrdersController {
   @ApiResponse({
     status: 200,
     description: 'Status da ordem de serviço atualizado com sucesso',
-    type: WorkOrderResponseDto,
   })
   @ApiParam({
     name: 'id',
@@ -170,5 +168,19 @@ export class WorkOrdersController {
   })
   findByHashView(@Param('hashView') hashView: string) {
     return this.workOrdersService.findByHashView(hashView)
+  }
+
+  @Public()
+  @Get('/approve/:hashView')
+  @ApiOperation({
+    summary: 'Aprovar ordem de serviço por hash de visualização',
+  })
+  @ApiParam({
+    name: 'hashView',
+    description: 'Hash de visualização da ordem de serviço',
+    example: '1234567890',
+  })
+  approveHashView(@Param('hashView') hashView: string) {
+    return this.workOrdersService.approveHashView(hashView)
   }
 }

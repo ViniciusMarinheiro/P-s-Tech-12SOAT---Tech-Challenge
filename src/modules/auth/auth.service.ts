@@ -62,7 +62,7 @@ export class AuthService {
       name: registerDto.name,
       email: registerDto.email,
       password: hashedPassword,
-      role: UserRole.CUSTOMER,
+      role: UserRole.ATTENDANT,
     })
 
     return {
