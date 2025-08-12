@@ -1,4 +1,4 @@
-import { Injectable, HttpStatus } from '@nestjs/common'
+import { Injectable } from '@nestjs/common'
 import { InjectRepository } from '@nestjs/typeorm'
 import { Repository, DataSource, In, Like } from 'typeorm'
 import { WorkOrder } from '../entities/work-order.entity'
@@ -8,14 +8,9 @@ import { WorkOrderPart } from '../entities/work-order-part.entity'
 import { WorkOrderRepositoryPort } from './port/work-order.repository.port'
 import { CreateWorkOrderDto } from '../dto/create-work-order.dto'
 import { UpdateWorkOrderDto } from '../dto/update-work-order.dto'
-import {
-  WorkOrderResponseDto,
-  WorkOrderServiceResponseDto,
-  WorkOrderPartResponseDto,
-} from '../dto/work-order-response.dto'
+import { WorkOrderResponseDto } from '../dto/work-order-response.dto'
 import { CustomException } from '@/common/exceptions/customException'
 import { ErrorMessages } from '@/common/constants/errorMessages'
-import { Service } from '@/modules/services/entities/service.entity'
 import { Part } from '@/modules/parts/entities/part.entity'
 import { convertToMoney } from '@/common/utils/convert-to-money'
 import { WorkOrderFilterDto } from '../dto/work-order-filter.dto'
