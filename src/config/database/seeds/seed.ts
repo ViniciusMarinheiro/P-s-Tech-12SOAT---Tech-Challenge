@@ -19,6 +19,15 @@ async function seed() {
     await AppDataSource.initialize()
     console.log('✅ Conexão com banco estabelecida')
 
+    const adminExists = await AppDataSource.getRepository(User).findOne({
+      where: { email: 'adm@gmail.com' },
+    })
+
+    if (adminExists) {
+      console.log('✅ Usuário admin já existe')
+      return
+    }
+
     // Limpar dados existentes (usando DELETE para evitar problemas de foreign key)
     console.log('🧹 Limpando dados existentes...')
     await AppDataSource.query('DELETE FROM work_order_parts')
