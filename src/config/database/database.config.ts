@@ -1,13 +1,13 @@
 import { TypeOrmModuleOptions } from '@nestjs/typeorm'
-import { Customer } from '@/modules/customers/entities/customer.entity'
-import { Vehicle } from '@/modules/vehicles/entities/vehicle.entity'
-import { Service } from '@/modules/services/entities/service.entity'
-import { Part } from '@/modules/parts/entities/part.entity'
-import { WorkOrder } from '@/modules/work-orders/entities/work-order.entity'
-import { WorkOrderService } from '@/modules/work-orders/entities/work-order-service.entity'
-import { WorkOrderPart } from '@/modules/work-orders/entities/work-order-part.entity'
-import { EnvConfigService } from '@/common/service/env/env-config.service'
-import { User } from '@/modules/users/entities/user.entity'
+import { Customer } from '../../modules/customers/entities/customer.entity'
+import { Vehicle } from '../../modules/vehicles/entities/vehicle.entity'
+import { Service } from '../../modules/services/entities/service.entity'
+import { Part } from '../../modules/parts/entities/part.entity'
+import { WorkOrder } from '../../modules/work-orders/entities/work-order.entity'
+import { WorkOrderService } from '../../modules/work-orders/entities/work-order-service.entity'
+import { WorkOrderPart } from '../../modules/work-orders/entities/work-order-part.entity'
+import { EnvConfigService } from '../../common/service/env/env-config.service'
+import { User } from '../../modules/users/entities/user.entity'
 
 export const databaseConfig = (
   envConfigService: EnvConfigService,
