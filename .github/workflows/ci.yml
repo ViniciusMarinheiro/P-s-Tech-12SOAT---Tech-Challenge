@@ -203,7 +203,7 @@ jobs:
 
       - name: 🗄️ Executar migrations
         env:
-          NODE_ENV: test
+          NODE_ENV: production
         run: yarn typeorm-ts-node-commonjs migration:run -d src/config/database/data-source.ts
 
       - name: 🧪 Executar testes E2E
