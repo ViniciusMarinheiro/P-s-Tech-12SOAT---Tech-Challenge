@@ -194,6 +194,30 @@ export class WorkOrderResponseDto {
   createdAt: Date
 
   @ApiProperty({
+    description: 'Data de início',
+    example: '2024-01-15T10:30:00Z',
+  })
+  startedAt: Date
+
+  @ApiProperty({
+    description: 'Data de conclusão',
+    example: '2024-01-15T10:30:00Z',
+  })
+  finishedAt?: Date
+
+  @ApiProperty({
+    description: 'Tempo de conclusão em minutos',
+    example: 150,
+  })
+  timeToFinish?: number
+
+  @ApiProperty({
+    description: 'Tempo de conclusão',
+    example: '2h 30m',
+  })
+  timeToFinishText?: string
+
+  @ApiProperty({
     description: 'Data de última atualização',
     example: '2024-01-15T10:30:00Z',
   })

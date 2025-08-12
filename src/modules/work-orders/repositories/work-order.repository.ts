@@ -20,6 +20,7 @@ import { Part } from '@/modules/parts/entities/part.entity'
 import { convertToMoney } from '@/common/utils/convert-to-money'
 import { WorkOrderFilterDto } from '../dto/work-order-filter.dto'
 import { generateUniqueHash } from '@/common/utils/generate-unique-hash.util'
+import { formatTimeToFinish } from '@/common/utils/format-time-to-finish'
 
 @Injectable()
 export class WorkOrderRepository extends WorkOrderRepositoryPort {
@@ -54,6 +55,11 @@ export class WorkOrderRepository extends WorkOrderRepositoryPort {
     dto.totalAmount = workOrder.totalAmount
     dto.createdAt = workOrder.createdAt
     dto.updatedAt = workOrder.updatedAt
+    dto.startedAt = workOrder.startedAt
+    if (workOrder.finishedAt) {
+      dto.finishedAt = workOrder.finishedAt
+    }
+    dto.hashView = workOrder.hashView
 
     dto.services = []
     dto.parts = []
@@ -73,6 +79,16 @@ export class WorkOrderRepository extends WorkOrderRepositoryPort {
     dto.hashView = workOrder.hashView
     dto.createdAt = workOrder.createdAt
     dto.updatedAt = workOrder.updatedAt
+    dto.startedAt = workOrder.startedAt
+    if (workOrder.finishedAt) {
+      dto.finishedAt = workOrder.finishedAt
+      dto.timeToFinish =
+        Math.round(
+          (workOrder.finishedAt?.getTime() - workOrder.startedAt?.getTime()) /
+            (1000 * 60),
+        ) || 0
+      dto.timeToFinishText = formatTimeToFinish(dto.timeToFinish)
+    }
 
     if (workOrder.customer) {
       dto.customer = {
@@ -421,7 +437,10 @@ export class WorkOrderRepository extends WorkOrderRepositoryPort {
     return workOrder ? this.mapWorkOrderWithRelations(workOrder) : null
   }
 
-  async updateFinishedAt(id: number, finishedAt: Date): Promise<WorkOrderResponseDto> {
+  async updateFinishedAt(
+    id: number,
+    finishedAt: Date,
+  ): Promise<WorkOrderResponseDto> {
     await this.workOrderRepository.update(id, { finishedAt })
     const updatedWorkOrder = await this.workOrderRepository.findOne({
       where: { id },
