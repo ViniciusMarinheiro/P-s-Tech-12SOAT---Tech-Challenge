@@ -23,10 +23,10 @@ export class Customer {
   })
   documentNumber: string
 
-  @Column({ type: 'varchar', length: 20, nullable: true })
+  @Column({ type: 'varchar', length: 20, nullable: true, unique: true })
   phone: string
 
-  @Column({ type: 'varchar', length: 100 })
+  @Column({ type: 'varchar', length: 100, unique: true })
   email: string
 
   @CreateDateColumn({ name: 'created_at' })

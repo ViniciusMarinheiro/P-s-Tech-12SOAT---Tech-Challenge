@@ -1,0 +1,6 @@
+projectKey=FASE1_POS_TECH_SOAT12
+serverUrl=http://localhost:9000
+serverVersion=10.6.0.92116
+dashboardUrl=http://localhost:9000/dashboard?id=FASE1_POS_TECH_SOAT12
+ceTaskId=3e584306-7e21-4890-9c17-414832033342
+ceTaskUrl=http://localhost:9000/api/ce/task?id=3e584306-7e21-4890-9c17-414832033342

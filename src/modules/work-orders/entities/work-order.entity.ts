@@ -8,15 +8,8 @@ import {
   JoinColumn,
   OneToMany,
 } from 'typeorm'
-
-export enum WorkOrderStatus {
-  RECEIVED = 'RECEIVED',
-  DIAGNOSING = 'DIAGNOSING',
-  AWAITING_APPROVAL = 'AWAITING_APPROVAL',
-  IN_PROGRESS = 'IN_PROGRESS',
-  FINISHED = 'FINISHED',
-  DELIVERED = 'DELIVERED',
-}
+import { WorkOrderStatusEnum } from '../enum/work-order-status.enum'
+import { columnDate } from '../../../common/db/column-date.util'
 
 @Entity('work_orders')
 export class WorkOrder {
@@ -29,14 +22,20 @@ export class WorkOrder {
   @Column({ type: 'int', name: 'vehicle_id' })
   vehicleId: number
 
-  @Column({
-    type: 'enum',
-    enum: WorkOrderStatus,
-    default: WorkOrderStatus.RECEIVED,
-  })
-  status: WorkOrderStatus
+  @Column({ type: 'int', name: 'user_id' })
+  userId: number
 
-  @Column({ type: 'int', default: 0, name: 'total_amount' }) // valor em centavos
+  @Column({ type: 'varchar', name: 'hash_view', nullable: true })
+  hashView: string
+
+  @Column({
+    type: 'simple-enum',
+    enum: WorkOrderStatusEnum,
+    default: WorkOrderStatusEnum.RECEIVED,
+  })
+  status: WorkOrderStatusEnum
+
+  @Column({ type: 'int', default: 0, name: 'total_amount' })
   totalAmount: number
 
   @CreateDateColumn({ name: 'created_at' })
@@ -53,9 +52,25 @@ export class WorkOrder {
   @JoinColumn({ name: 'vehicle_id' })
   vehicle: any
 
+  @ManyToOne('User', 'workOrders')
+  @JoinColumn({ name: 'user_id' })
+  user: any
+
   @OneToMany('WorkOrderService', 'workOrder')
   workOrderServices: any[]
 
   @OneToMany('WorkOrderPart', 'workOrder')
   workOrderParts: any[]
+
+  @Column(
+    columnDate({
+      name: 'started_at',
+      nullable: false,
+      default: () => 'CURRENT_TIMESTAMP',
+    }),
+  )
+  startedAt: Date
+
+  @Column(columnDate({ name: 'finished_at', nullable: true }))
+  finishedAt: Date
 }
