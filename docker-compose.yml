@@ -43,6 +43,17 @@ services:
       - JWT_EXPIRES_IN=7d
       - PORT=3333
       - DOCUMENTATION_PREFIX=api/v1/oficina
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - REDIS_DB=0
+      - REDIS_PASSWORD=
+      - SMTP_HOST=smtp.gmail.com
+      - PORT_EMAIL=465
+      - SECURE_EMAIL=true
+      - USER_EMAIL=junioryrj@gmail.com
+      - BBC_EMAIL=rodrigo.franco@unifio.edu.br
+      - PASS_EMAIL=oyjn prnc rfcy zfqz
+      - SERVER_URL=http://localhost:3333
     ports:
       - '3333:3333'
     depends_on:
@@ -50,15 +61,6 @@ services:
         condition: service_healthy
     networks:
       - oficina-network
-    command: >
-      sh -c "
-        echo 'Aguardando PostgreSQL estar pronto...' &&
-        sleep 10 &&
-        echo 'Executando migrações...' &&
-        npx typeorm migration:run -d dist/config/database/data-source.js &&
-        echo 'Iniciando aplicação...' &&
-        node dist/main.js
-      "
     healthcheck:
       test:
         [
@@ -70,8 +72,25 @@ services:
       retries: 3
       start_period: 60s
 
+  redis:
+    container_name: oficina-redis
+    image: redis
+    ports:
+      - 6379:6379
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ['CMD', 'redis-cli', 'ping']
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - oficina-network
+
 volumes:
   postgres_data:
+    driver: local
+  redis_data:
     driver: local
 
 networks:

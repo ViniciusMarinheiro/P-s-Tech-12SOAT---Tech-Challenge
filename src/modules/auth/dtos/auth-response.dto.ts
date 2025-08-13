@@ -23,7 +23,7 @@ export class AuthUserDto {
   @ApiProperty({
     description: 'Papel do usuário no sistema',
     enum: UserRole,
-    example: UserRole.CUSTOMER,
+    example: UserRole.ATTENDANT,
   })
   role: UserRole
 }
@@ -58,7 +58,7 @@ export class RegisterResponseDto {
   @ApiProperty({
     description: 'Papel do usuário no sistema',
     enum: UserRole,
-    example: UserRole.CUSTOMER,
+    example: UserRole.ATTENDANT,
   })
   role: UserRole
 

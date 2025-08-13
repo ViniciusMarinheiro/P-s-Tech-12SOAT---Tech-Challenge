@@ -1,8 +1,134 @@
-## Description
+# 🛠️ Sistema Integrado de Atendimento e Execução de Serviços - Oficina Mecânica FullStack Motors
+
+## 📌 Contexto
+
+Uma oficina mecânica de médio porte, especializada em manutenção de veículos, tem enfrentado desafios para expandir seus serviços com qualidade e eficiência.
+
+Atualmente, o processo de atendimento, diagnóstico, execução de serviços e entrega dos veículos é feito de forma **desorganizada**, utilizando anotações manuais e planilhas, gerando problemas como:
+
+- ❌ Erros na priorização dos atendimentos
+- ❌ Falhas no controle de peças e insumos
+- ❌ Dificuldade em acompanhar o status dos serviços
+- ❌ Perda de histórico de clientes e veículos
+- ❌ Ineficiência no fluxo de orçamentos e autorizações
+
+Para resolver essas questões, a oficina decidiu investir em um **Sistema Integrado de Atendimento e Execução de Serviços**, permitindo:
+
+- 📲 Clientes acompanharem em tempo real o andamento dos serviços
+- ✅ Aprovação de reparos adicionais via aplicativo
+- ⚙️ Gestão interna mais eficiente, organizada e segura
+
+---
+
+## 🎯 Objetivo do Projeto
+
+Desenvolver a **primeira versão (MVP)** do back-end do sistema, com foco em:
+
+- Gestão de **ordens de serviço (OS)**
+- Gestão de **clientes**
+- Gestão de **peças e insumos**
+- Aplicação de **Domain-Driven Design (DDD)**
+- Garantia de **boas práticas de Qualidade de Software e Segurança**
+
+---
+
+## 🚀 Funcionalidades
+
+### 📄 Criação da Ordem de Serviço (OS)
+
+- Identificação do cliente por **CPF/CNPJ**
+- Cadastro de veículo (**placa, marca, modelo, ano**)
+- Inclusão dos serviços solicitados (ex.: troca de óleo, alinhamento)
+- Inclusão de peças e insumos necessários
+- Geração automática de orçamento com base nos serviços e peças
+- Envio do orçamento ao cliente para aprovação
+
+### 📊 Acompanhamento da OS
+
+- Status possíveis:
+  - Recebida
+  - Em diagnóstico
+  - Aguardando aprovação
+  - Em execução
+  - Finalizada
+  - Entregue
+- Alteração automática de status conforme ações no sistema
+- Consulta pública via API para acompanhamento do progresso
+
+### 🗂️ Gestão Administrativa
+
+- CRUD de clientes
+- CRUD de veículos
+- CRUD de serviços
+- CRUD de peças e insumos, com controle de estoque
+- Listagem e detalhamento de ordens de serviço
+- Monitoramento do tempo médio de execução
+
+---
+
+## 🔐 Segurança e Qualidade
+
+- Autenticação **JWT** para APIs administrativas
+- Validação de dados sensíveis (**CPF, CNPJ, placa de veículo**)
+- Testes unitários e de integração para os principais fluxos
+
+---
+
+## 🏗️ Tecnologias Utilizadas
+
+- **Node.js / NestJS**
+- **TypeScript**
+- **PostgreSQL**
+- **DDD (Domain-Driven Design)**
+- **Jest** (testes)
+- **JWT** (segurança)
+
+---
+
+## 🛠️ Como Executar o Projeto com Docker Compose
+
+### Pré-requisitos
+
+- [Docker](https://www.docker.com/) instalado
+- [Docker Compose](https://docs.docker.com/compose/) instalado
+
+### Passos para execução
+
+1. Clone o repositório:
+
+   ```bash
+   git clone https://github.com/ViniciusMarinheiro/P-s-Tech-12SOAT---Tech-Challenge.git
+
+   ```
+
+2. Acesse a pasta do projeto:
+   ```bash
+   cd P-s-Tech-12SOAT---Tech-Challenge
+   ```
+3. Construa e inicie os containers:
+
+   ```bash
+   docker-compose up -d --build
+
+   ```
+
+4. Acesse a aplicação na porta configurada:
+
+   ```bash
+   http://localhost:3333/api/oficina
+
+   ```
+
+5. Acesse a documentação da aplicação:
+   ```bash
+   http://localhost:3333/api/v1/oficina/documentation
+   ```
+
+## Descrição
 
 [Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
 
-## Compile and run the project
+## Compilar e executar o projeto
 
 ```bash
 # development
@@ -21,7 +147,7 @@ $ yarn start:prod
 $ yarn migration:generate MinhaMigration
 ```
 
-## Run tests
+## Execução de testes
 
 ```bash
 # unit tests
@@ -34,7 +160,7 @@ $yarn test:e2e
 $yarn test:cov
 ```
 
-## Deployment
+## Desenvolvimento
 
 When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.
 

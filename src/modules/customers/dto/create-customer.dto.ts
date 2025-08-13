@@ -4,36 +4,29 @@ import {
   IsEnum,
   IsOptional,
   MinLength,
+  IsNotEmpty,
 } from 'class-validator'
 import { ApiProperty } from '@nestjs/swagger'
-import { DocumentType } from '../../auth/enums/document-type.enum'
+import { IsCpfOrCnpj } from '@/common/dto/is-cpf-or-cnpj-constraint'
+import { IsPhone } from '@/common/dto/phone.validator'
 
 export class CreateCustomerDto {
   @ApiProperty({ description: 'Nome do cliente' })
   @IsString()
   name: string
 
-  @ApiProperty({ enum: DocumentType, description: 'Tipo de documento' })
-  @IsEnum(DocumentType)
-  document_type: DocumentType
-
   @ApiProperty({ description: 'Número do documento' })
   @IsString()
+  @IsCpfOrCnpj()
   documentNumber: string
 
   @ApiProperty({ description: 'Telefone do cliente', required: false })
   @IsOptional()
-  @IsString()
+  @IsPhone()
   phone?: string
 
-  @ApiProperty({ description: 'Email do cliente', required: false })
-  @IsOptional()
+  @ApiProperty({ description: 'Email do cliente' })
+  @IsNotEmpty()
   @IsEmail()
-  email?: string
-
-  @ApiProperty({ description: 'Senha do cliente', required: false })
-  @IsOptional()
-  @IsString()
-  @MinLength(6)
-  password?: string
+  email: string
 }

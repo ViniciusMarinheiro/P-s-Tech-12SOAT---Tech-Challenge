@@ -1,11 +1,11 @@
 import { DataSource } from 'typeorm'
 import { Customer } from '../../modules/customers/entities/customer.entity'
-import { Vehicle } from '../../modules/vehicles/vehicle.entity'
-import { Service } from '../../modules/services/service.entity'
-import { Part } from '../../modules/parts/part.entity'
-import { WorkOrder } from '../../modules/work-orders/work-order.entity'
-import { WorkOrderService } from '../../modules/work-orders/work-order-service.entity'
-import { WorkOrderPart } from '../../modules/work-orders/work-order-part.entity'
+import { Vehicle } from '../../modules/vehicles/entities/vehicle.entity'
+import { Service } from '../../modules/services/entities/service.entity'
+import { Part } from '../../modules/parts/entities/part.entity'
+import { WorkOrder } from '../../modules/work-orders/entities/work-order.entity'
+import { WorkOrderService } from '../../modules/work-orders/entities/work-order-service.entity'
+import { WorkOrderPart } from '../../modules/work-orders/entities/work-order-part.entity'
 import { config } from 'dotenv'
 import { User } from '../../modules/users/entities/user.entity'
 
@@ -29,7 +29,10 @@ export const AppDataSource = new DataSource({
     WorkOrderPart,
     User,
   ],
-  migrations: ['src/migrations/*.ts'],
+  migrations:
+    process.env.NODE_ENV === 'production'
+      ? ['dist/src/migrations/*.js']
+      : ['src/migrations/*.ts'],
   synchronize: false,
   logging: process.env.NODE_ENV !== 'production',
 })
