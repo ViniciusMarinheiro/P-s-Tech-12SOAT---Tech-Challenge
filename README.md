@@ -123,6 +123,17 @@ Desenvolver a **primeira versão (MVP)** do back-end do sistema, com foco em:
    ```bash
    http://localhost:3333/api/v1/oficina/documentation
    ```
+   
+## Login no Swagger
+Conta administrativa para testes:
+Login
+```bash
+adm@gmail.com
+```
+Senha
+```bash
+admin123@
+```
 
 ## Descrição
 
