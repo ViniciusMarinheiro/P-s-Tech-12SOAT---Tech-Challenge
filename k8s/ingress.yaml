@@ -1,0 +1,16 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: oficina-ingress
+spec:
+  rules:
+  - host: oficina.local
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: oficina-app
+            port:
+              number: 3333
