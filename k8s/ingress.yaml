@@ -1,24 +1,14 @@
-apiVersion: networking.k8s.io/v1
-kind: Ingress
+apiVersion: v1
+kind: Service
 metadata:
-  name: oficina-api-ingress
-  annotations:
-    nginx.ingress.kubernetes.io/rewrite-target: /$1
-    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+  name: oficina-api-lb
+  labels:
+    app: oficina-api
 spec:
-  ingressClassName: nginx
-  rules:
-  - host: oficina.local    
-    http:
-      paths:
-      - path: /(.*)
-        pathType: Prefix
-        backend:
-          service:
-            name: oficina-api
-            port:
-              number: 80
-  tls:
-  - hosts:
-    - oficina.local         
-    secretName: oficina-tls 
+  type: LoadBalancer
+  ports:
+    - name: http
+      port: 3333
+      targetPort: 3333
+  selector:
+    app: oficina-api
