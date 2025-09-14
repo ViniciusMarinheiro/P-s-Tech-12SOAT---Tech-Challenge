@@ -231,23 +231,37 @@ jobs:
         run: yarn install --frozen-lockfile
 
   # ================================
-  # BUILD STAGE
+  # BUILD AND DEPLOY STAGE
   # ================================
-  build:
-    name: 🏗️ Build Docker
+  build-and-deploy:
+    name: 🏗️ Build e Deploy no AKS
     runs-on: ubuntu-latest
     needs: [unit-tests, integration-tests, security]
-    if: github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/')
-
+    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop' || startsWith(github.ref, 'refs/tags/')
+    
     steps:
       - name: 📥 Checkout código
         uses: actions/checkout@v4
 
-      - name: 🔐 Login no Docker Hub
+      - name: Azure Login
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Create Docker container builder
+        run: |
+          docker buildx create --use --name mybuilder
+          docker buildx inspect mybuilder --bootstrap
+
+      - name: Docker Login to Azure Container Registry
         uses: docker/login-action@v3
         with:
-          username: ${{ secrets.DOCKER_USERNAME }}
-          password: ${{ secrets.DOCKER_PASSWORD }}
+          registry: acrfst.azurecr.io
+          username: ${{ secrets.ACR_USERNAME }}
+          password: ${{ secrets.ACR_PASSWORD }}
 
       - name: 🏗️ Build e Push da imagem
         uses: docker/build-push-action@v5
@@ -255,55 +269,19 @@ jobs:
           context: .
           push: true
           tags: |
-            ${{ secrets.DOCKER_USERNAME }}/ps-tech-api:latest
-            ${{ secrets.DOCKER_USERNAME }}/ps-tech-api:${{ github.sha }}
+            acrfst.azurecr.io/ps-tech-api:latest
+            acrfst.azurecr.io/ps-tech-api:${{ github.sha }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
-  # ================================
-  # DEPLOY STAGE
-  # ================================
-  deploy-staging:
-    name: 🚀 Deploy Staging
-    runs-on: ubuntu-latest
-    needs: [unit-tests, integration-tests, security]
-    if: github.ref == 'refs/heads/develop'
-    environment: staging
-
-    steps:
-      - name: 📥 Checkout código
-        uses: actions/checkout@v4
-
-      - name: 🚀 Deploy para Staging
+      - name: Get AKS Credentials
         run: |
-          echo "🚀 Deployando para staging..."
-          echo "📋 Informações do deploy:"
-          echo "  - Branch: ${{ github.ref_name }}"
-          echo "  - Commit: ${{ github.sha }}"
-          echo "  - Autor: ${{ github.actor }}"
-          echo "  - Data: $(date)"
-          echo "✅ Deploy para staging concluído"
+          az aks get-credentials --resource-group MyResourceGroup --name my-aks-cluster --overwrite-existing
 
-  deploy-production:
-    name: 🚀 Deploy Produção
-    runs-on: ubuntu-latest
-    needs: [build]
-    if: github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/')
-    environment: production
-
-    steps:
-      - name: 📥 Checkout código
-        uses: actions/checkout@v4
-
-      - name: 🚀 Deploy para Produção
+      - name: Update AKS Deployment
         run: |
-          echo "🚀 Deployando para produção..."
-          echo "📋 Informações do deploy:"
-          echo "  - Branch: ${{ github.ref_name }}"
-          echo "  - Commit: ${{ github.sha }}"
-          echo "  - Autor: ${{ github.actor }}"
-          echo "  - Data: $(date)"
-          echo "✅ Deploy para produção concluído"
+          kubectl set image deployment/oficina-api oficina-api=acrfst.azurecr.io/ps-tech-api:${{ github.sha }}
+          echo "✅ Deploy concluído"
 
   # ================================
   # NOTIFICATIONS
@@ -316,9 +294,7 @@ jobs:
         unit-tests,
         integration-tests,
         security,
-        build,
-        deploy-staging,
-        deploy-production,
+        build-and-deploy
       ]
     if: always()
 
