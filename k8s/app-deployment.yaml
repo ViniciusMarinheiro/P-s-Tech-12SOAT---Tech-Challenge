@@ -1,0 +1,25 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: oficina-app
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: oficina-app
+  template:
+    metadata:
+      labels:
+        app: oficina-app
+    spec:
+      containers:
+      - name: oficina-app
+        image: viniciusmarinheiro/oficina-api:latest # substitua pela imagem publicada
+        ports:
+        - containerPort: 3333
+        envFrom:
+        - configMapRef:
+            name: oficina-config
+        - secretRef:
+            name: oficina-secret
+
