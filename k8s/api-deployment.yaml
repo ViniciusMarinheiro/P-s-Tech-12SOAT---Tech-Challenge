@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
       - name: oficina-api
-        image: acrfst.azurecr.io/oficina-api:latest  
+        image: acrfst.azurecr.io/oficina-api:fdd46270376cbfb6943316bc37748950c982d89a  
         ports:
         - containerPort: 3333
         envFrom:
