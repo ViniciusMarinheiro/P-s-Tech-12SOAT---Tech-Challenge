@@ -278,6 +278,10 @@ jobs:
         run: |
           az aks get-credentials --resource-group MyResourceGroup --name my-aks-cluster --overwrite-existing
 
+      - name: Deploy Kubernetes Manifest
+        run: |
+          kubectl apply -f k8s/
+      
       - name: Update AKS Deployment
         run: |
           kubectl set image deployment/oficina-api oficina-api=acrfst.azurecr.io/ps-tech-api:${{ github.sha }}
