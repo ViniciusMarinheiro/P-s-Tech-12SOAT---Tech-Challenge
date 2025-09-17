@@ -1,0 +1,36 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: oficina-api
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: oficina-api
+  template:
+    metadata:
+      labels:
+        app: oficina-api
+    spec:
+      containers:
+      - name: oficina-api
+        image: acrfst.azurecr.io/ps-tech-api:latest 
+        ports:
+        - containerPort: 3333
+        envFrom:
+        - configMapRef:
+            name: oficina-config
+        - secretRef:
+            name: oficina-secrets
+        livenessProbe:
+          httpGet:
+            path: /api/v1/oficina
+            port: 3333
+          initialDelaySeconds: 60
+          periodSeconds: 30
+        readinessProbe:
+          httpGet:
+            path: /api/v1/oficina
+            port: 3333
+          initialDelaySeconds: 30
+          periodSeconds: 10
