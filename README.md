@@ -155,7 +155,7 @@ Os arquivos do Terraform estão localizados na pasta `/terraform` e são respons
 **Passos:**
 1.  Acesse a pasta do Terraform:
     ```bash
-    cd terraform
+    cd infra/terraform/azure-aks
     ```
 2.  Inicialize o Terraform:
     ```bash
