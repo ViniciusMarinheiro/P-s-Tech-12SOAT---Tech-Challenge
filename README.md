@@ -51,7 +51,6 @@ O processo de deploy é totalmente automatizado utilizando GitHub Actions:
 2.  **GitHub Actions (CI):** A action é acionada, realizando o build da aplicação, execução de testes e a construção da imagem Docker.
 3.  **Push da Imagem:** A imagem Docker é enviada para o Azure Container Registry (ACR).
 4.  **Deploy no AKS (CD):** A action se conecta ao cluster AKS e aplica os manifestos Kubernetes (`deployment.yaml`, `service.yaml`, etc.), atualizando a aplicação para a nova versão.
-=======
 
 
 
