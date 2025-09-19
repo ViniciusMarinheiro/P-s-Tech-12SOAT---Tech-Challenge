@@ -46,13 +46,14 @@ A arquitetura foi projetada para ser escalável, resiliente e segura, utilizando
 * **Azure Load Balancer:** Provisionado automaticamente pelo AKS para expor o Ingress Controller à internet e distribuir o tráfego.
 
 ### Fluxo de Deploy (CI/CD)
+
 O processo de deploy é totalmente automatizado utilizando GitHub Actions:
 1.  **Push no Repositório:** O desenvolvedor envia o código para a branch principal no GitHub.
 2.  **GitHub Actions (CI):** A action é acionada, realizando o build da aplicação, execução de testes e a construção da imagem Docker.
 3.  **Push da Imagem:** A imagem Docker é enviada para o Azure Container Registry (ACR).
 4.  **Deploy no AKS (CD):** A action se conecta ao cluster AKS e aplica os manifestos Kubernetes (`deployment.yaml`, `service.yaml`, etc.), atualizando a aplicação para a nova versão.
 
-
+![Fluxo de Deploy (CI/CD)](docs/images/fluxo_deploy.png)
 
 ---
 
