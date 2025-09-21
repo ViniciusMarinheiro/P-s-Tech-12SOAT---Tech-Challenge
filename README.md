@@ -2,13 +2,25 @@
 
 ## 📌 Contexto
 
-<<<<<<< HEAD
 Uma oficina mecânica de médio porte, especializada em manutenção de veículos, tem enfrentado desafios para expandir seus serviços com qualidade e eficiência. Atualmente, o processo de atendimento, diagnóstico, execução de serviços e entrega dos veículos é feito de forma desorganizada, utilizando anotações manuais e planilhas, gerando problemas de organização, controle e comunicação com o cliente.
 
 ## 🎯 Objetivo do Projeto
 
 Desenvolver a **primeira versão (MVP)** do back-end do sistema, com foco em criar uma base robusta para a gestão de ordens de serviço, clientes e peças. O projeto visa aplicar conceitos de arquitetura em nuvem, automação de infraestrutura e CI/CD para garantir uma solução escalável, segura e de fácil manutenção.
+Atualmente, o processo de atendimento, diagnóstico, execução de serviços e entrega dos veículos é feito de forma **desorganizada**, utilizando anotações manuais e planilhas, gerando problemas como:
 
+- ❌ Erros na priorização dos atendimentos
+- ❌ Falhas no controle de peças e insumos
+- ❌ Dificuldade em acompanhar o status dos serviços
+- ❌ Perda de histórico de clientes e veículos
+- ❌ Ineficiência no fluxo de orçamentos e autorizações
+
+Para resolver essas questões, a oficina decidiu investir em um **Sistema Integrado de Atendimento e Execução de Serviços**, permitindo:
+
+- 📲 Clientes acompanharem em tempo real o andamento dos serviços
+- ✅ Aprovação de reparos adicionais via aplicativo
+- ⚙️ Gestão interna mais eficiente, organizada e segura
+  
 Os objetivos desta fase são:
 - **Modelagem do Domínio:** Aplicar os princípios do Domain-Driven Design (DDD) para estruturar o núcleo da aplicação.
 - **Desenvolvimento da API:** Construir os endpoints necessários para as funcionalidades de CRUD e gestão de OS.
@@ -34,27 +46,14 @@ A arquitetura foi projetada para ser escalável, resiliente e segura, utilizando
 * **Azure Load Balancer:** Provisionado automaticamente pelo AKS para expor o Ingress Controller à internet e distribuir o tráfego.
 
 ### Fluxo de Deploy (CI/CD)
+
 O processo de deploy é totalmente automatizado utilizando GitHub Actions:
 1.  **Push no Repositório:** O desenvolvedor envia o código para a branch principal no GitHub.
 2.  **GitHub Actions (CI):** A action é acionada, realizando o build da aplicação, execução de testes e a construção da imagem Docker.
 3.  **Push da Imagem:** A imagem Docker é enviada para o Azure Container Registry (ACR).
 4.  **Deploy no AKS (CD):** A action se conecta ao cluster AKS e aplica os manifestos Kubernetes (`deployment.yaml`, `service.yaml`, etc.), atualizando a aplicação para a nova versão.
-=======
-Uma oficina mecânica de médio porte, especializada em manutenção de veículos, tem enfrentado desafios para expandir seus serviços com qualidade e eficiência.
 
-Atualmente, o processo de atendimento, diagnóstico, execução de serviços e entrega dos veículos é feito de forma **desorganizada**, utilizando anotações manuais e planilhas, gerando problemas como:
-
-- ❌ Erros na priorização dos atendimentos
-- ❌ Falhas no controle de peças e insumos
-- ❌ Dificuldade em acompanhar o status dos serviços
-- ❌ Perda de histórico de clientes e veículos
-- ❌ Ineficiência no fluxo de orçamentos e autorizações
-
-Para resolver essas questões, a oficina decidiu investir em um **Sistema Integrado de Atendimento e Execução de Serviços**, permitindo:
-
-- 📲 Clientes acompanharem em tempo real o andamento dos serviços
-- ✅ Aprovação de reparos adicionais via aplicativo
-- ⚙️ Gestão interna mais eficiente, organizada e segura
+![Fluxo de Deploy (CI/CD)](docs/images/fluxo_deploy.png)
 
 ---
 
@@ -109,13 +108,11 @@ Desenvolver a **primeira versão (MVP)** do back-end do sistema, com foco em:
 - Autenticação **JWT** para APIs administrativas
 - Validação de dados sensíveis (**CPF, CNPJ, placa de veículo**)
 - Testes unitários e de integração para os principais fluxos
->>>>>>> 5b66bfbbd308702025668032bb574e2a2ea33638
 
 ---
 
 ## 🏗️ Tecnologias Utilizadas
 
-<<<<<<< HEAD
 - **Back-end:** Node.js / NestJS com TypeScript
 - **Banco de Dados:** PostgreSQL
 - **Arquitetura de Código:** DDD (Domain-Driven Design)
@@ -159,7 +156,7 @@ Os arquivos do Terraform estão localizados na pasta `/terraform` e são respons
 **Passos:**
 1.  Acesse a pasta do Terraform:
     ```bash
-    cd terraform
+    cd infra/terraform/azure-aks
     ```
 2.  Inicialize o Terraform:
     ```bash
