@@ -14,9 +14,16 @@ spec:
     spec:
       containers:
       - name: oficina-api
-        image: acrfst.azurecr.io/oficina-api:fdd46270376cbfb6943316bc37748950c982d89a  
+        image: acrfst.azurecr.io/ps-tech-api:43a68820b44bc16172b02c5b5b992f0fb91987b5
         ports:
         - containerPort: 3333
+        resources:
+          requests:
+            cpu: "250m"      
+            memory: "256Mi"
+          limits:
+            cpu: "500m"     
+            memory: "512Mi" 
         envFrom:
         - configMapRef:
             name: oficina-config
