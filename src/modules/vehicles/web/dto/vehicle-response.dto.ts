@@ -2,9 +2,9 @@ import { CustomerResponseDto } from '@/modules/customers/dto/customer-response.d
 import { ApiProperty } from '@nestjs/swagger'
 import { IsNumber, IsOptional, IsString } from 'class-validator'
 
-export class VehiclesResponseDto {
+export class VehicleResponseDto {
   @ApiProperty({
-    description: 'ID único do usuário',
+    description: 'ID único do veículo',
     example: 1,
   })
   @IsString()
@@ -17,7 +17,7 @@ export class VehiclesResponseDto {
   @IsNumber()
   customerId: number
 
-  @ApiProperty({ description: 'ID do cliente' })
+  @ApiProperty({ description: 'Cliente' })
   @IsNumber()
   customer: CustomerResponseDto
 
@@ -38,13 +38,13 @@ export class VehiclesResponseDto {
   year: number
 
   @ApiProperty({
-    description: 'Data de criação do cliente',
+    description: 'Data de criação do veículo',
     example: '2024-01-15T10:30:00Z',
   })
   createdAt: Date
 
   @ApiProperty({
-    description: 'Data de última atualização do cliente',
+    description: 'Data de última atualização do veículo',
     example: '2024-01-15T10:30:00Z',
   })
   updatedAt: Date

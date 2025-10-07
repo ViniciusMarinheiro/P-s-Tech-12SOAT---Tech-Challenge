@@ -1,7 +1,7 @@
 import { IsString, IsNumber } from 'class-validator'
 import { ApiProperty } from '@nestjs/swagger'
 
-export class CreateVehiclesDto {
+export class CreateVehicleDto {
   @ApiProperty({ description: 'ID do cliente' })
   @IsNumber()
   customerId: number

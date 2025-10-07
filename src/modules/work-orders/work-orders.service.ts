@@ -6,7 +6,6 @@ import { WorkOrderResponseDto } from './dto/work-order-response.dto'
 import { WorkOrderStatusEnum } from './enum/work-order-status.enum'
 import { CustomException } from '@/common/exceptions/customException'
 import { ErrorMessages } from '@/common/constants/errorMessages'
-import { VehiclesService } from '../vehicles/vehicles.service'
 import { CustomersService } from '../customers/customers.service'
 import { ServicesService } from '../services/services.service'
 import { PartsService } from '../parts/parts.service'
@@ -14,12 +13,13 @@ import { convertToCents } from '@/common/utils/convert-to-cents'
 import { WorkOrderFilterDto } from './dto/work-order-filter.dto'
 import { SendEmailQueueProvider } from '@/providers/email/job/send-email-queue/send-email-queue.provider'
 import { EnvConfigService } from '@/common/service/env/env-config.service'
+import { FindVehicleByIdUseCase } from '../vehicles/application/use-cases/find-vehicle-by-id.use-case'
 
 @Injectable()
 export class WorkOrdersService {
   constructor(
     private readonly workOrderRepository: WorkOrderRepositoryPort,
-    private readonly vehiclesService: VehiclesService,
+    private readonly findVehicleByIdUseCase: FindVehicleByIdUseCase,
     private readonly customersService: CustomersService,
     private readonly servicesService: ServicesService,
     private readonly partsService: PartsService,
@@ -345,7 +345,7 @@ export class WorkOrdersService {
     }
 
     if (status === WorkOrderStatusEnum.DELIVERED) {
-      await this.workOrderRepository.updateFinishedAt(id, new Date());
+      await this.workOrderRepository.updateFinishedAt(id, new Date())
       await this.sendEmailQueueProvider.execute({
         recipient: workOrder.customer.email,
         subject: `Ordem de serviço ${workOrder.id} - Entregue com sucesso!`,
@@ -503,7 +503,7 @@ export class WorkOrdersService {
     vehicleId: number,
   ): Promise<void> {
     const customer = await this.customersService.findOne(customerId)
-    const vehicle = await this.vehiclesService.findOne(vehicleId)
+    const vehicle = await this.findVehicleByIdUseCase.execute(vehicleId)
 
     if (!customer) {
       throw new CustomException(ErrorMessages.CUSTOMER.NOT_FOUND(customerId))

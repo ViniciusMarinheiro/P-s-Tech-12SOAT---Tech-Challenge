@@ -5,8 +5,8 @@ import {
   ApiResponse,
   ApiBearerAuth,
 } from '@nestjs/swagger'
-import { AppService } from './app.service'
-import { Public } from './common/decorators/public.decorator'
+import { AppService } from '../app.service'
+import { Public } from '../common/decorators/public.decorator'
 
 @ApiTags('App')
 @Controller()

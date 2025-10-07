@@ -1,6 +1,6 @@
 import { TypeOrmModuleOptions } from '@nestjs/typeorm'
 import { Customer } from '../../modules/customers/entities/customer.entity'
-import { Vehicle } from '../../modules/vehicles/entities/vehicle.entity'
+import { Vehicle } from '../../modules/vehicles/infrastructure/database/vehicle.entity'
 import { Service } from '../../modules/services/entities/service.entity'
 import { Part } from '../../modules/parts/entities/part.entity'
 import { WorkOrder } from '../../modules/work-orders/entities/work-order.entity'
