@@ -1,7 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger'
-import { UserRole } from '../../auth/enums/user-role.enum'
+import { UserRole } from '../../../auth/enums/user-role.enum'
 
-export class UserResponsePasswordDto {
+export class UserResponseDto {
   @ApiProperty({
     description: 'ID único do usuário',
     example: 1,
@@ -13,12 +13,6 @@ export class UserResponsePasswordDto {
     example: 'João Silva Santos',
   })
   name: string
-
-  @ApiProperty({
-    description: 'Senha do usuário',
-    example: '123456',
-  })
-  password: string
 
   @ApiProperty({
     description: 'Email do usuário',

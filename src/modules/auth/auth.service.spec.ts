@@ -1,6 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing'
 import { AuthService } from './auth.service'
-import { UserRepository } from '../users/repositories/user.repository'
+import { UserRepository } from '../users/infrastructure/database/user.repository'
 import { JwtService } from '@nestjs/jwt'
 import * as bcrypt from 'bcryptjs'
 

@@ -7,9 +7,9 @@ import { AuthService } from './auth.service'
 import { AuthController } from './auth.controller'
 import { JwtStrategy } from '../../common/strategies/jwt.strategy'
 import { LocalStrategy } from '../../common/strategies/local.strategy'
-import { User } from '../users/entities/user.entity'
-import { UserRepository } from '../users/repositories/user.repository'
-import { UserRepositoryPort } from '../users/repositories/port/user.repository.port'
+import { User } from '../users/infrastructure/database/user.entity'
+import { UserRepository } from '../users/infrastructure/database/user.repository'
+import { UserRepositoryPort } from '../users/domain/repositories/user.repository.port'
 import { EnvConfigModule } from '../../common/service/env/env-config.module'
 
 @Module({

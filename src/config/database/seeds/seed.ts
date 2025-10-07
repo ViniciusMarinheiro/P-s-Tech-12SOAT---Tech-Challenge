@@ -1,7 +1,7 @@
 import { DataSource } from 'typeorm'
 import * as bcrypt from 'bcryptjs'
 import { UserRole } from '../../../modules/auth/enums/user-role.enum'
-import { User } from '../../../modules/users/entities/user.entity'
+import { User } from '../../../modules/users/infrastructure/database/user.entity'
 import { Customer } from '../../../modules/customers/entities/customer.entity'
 import { Vehicle } from '../../../modules/vehicles/entities/vehicle.entity'
 import { WorkOrder } from '../../../modules/work-orders/entities/work-order.entity'

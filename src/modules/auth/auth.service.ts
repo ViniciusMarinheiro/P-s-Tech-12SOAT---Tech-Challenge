@@ -9,7 +9,7 @@ import {
   JwtPayload,
   AuthUser,
 } from './interfaces/auth-response.interface'
-import { UserRepositoryPort } from '../users/repositories/port/user.repository.port'
+import { UserRepositoryPort } from '../users/domain/repositories/user.repository.port'
 
 @Injectable()
 export class AuthService {
@@ -24,7 +24,7 @@ export class AuthService {
   ): Promise<AuthUser | null> {
     const user = await this.userRepository.findByEmailAndPassword(email)
 
-    if (user && (await bcrypt.compare(password, user.password))) {
+    if (user?.password && (await bcrypt.compare(password, user.password))) {
       return {
         id: user.id,
         name: user.name,
@@ -32,6 +32,7 @@ export class AuthService {
         role: user.role,
       }
     }
+
     return null
   }
 
