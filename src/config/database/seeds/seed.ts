@@ -1,15 +1,11 @@
-import { DataSource } from 'typeorm'
 import * as bcrypt from 'bcryptjs'
 import { UserRole } from '../../../modules/auth/enums/user-role.enum'
 import { User } from '../../../modules/users/infrastructure/database/user.entity'
-import { Customer } from '../../../modules/customers/entities/customer.entity'
+import { Customer } from '../../../modules/customers/infrastructure/database/customer.entity'
 import { Vehicle } from '../../../modules/vehicles/infrastructure/database/vehicle.entity'
-import { WorkOrder } from '../../../modules/work-orders/entities/work-order.entity'
-import { WorkOrderService } from '../../../modules/work-orders/entities/work-order-service.entity'
-import { WorkOrderPart } from '../../../modules/work-orders/entities/work-order-part.entity'
 import { AppDataSource } from '../data-source'
-import { Part } from '../../../modules/parts/entities/part.entity'
-import { Service } from '../../../modules/services/entities/service.entity'
+import { Part } from '../../../modules/parts/infrastructure/database/part.entity'
+import { Service } from '../../../modules/services/infrastructure/database/service.entity'
 
 async function seed() {
   console.log('🌱 Iniciando seed do banco de dados...')

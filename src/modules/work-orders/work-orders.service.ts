@@ -6,9 +6,10 @@ import { WorkOrderResponseDto } from './dto/work-order-response.dto'
 import { WorkOrderStatusEnum } from './enum/work-order-status.enum'
 import { CustomException } from '@/common/exceptions/customException'
 import { ErrorMessages } from '@/common/constants/errorMessages'
-import { CustomersService } from '../customers/customers.service'
-import { ServicesService } from '../services/services.service'
-import { PartsService } from '../parts/parts.service'
+import { FindCustomerByIdUseCase } from '../customers/application/use-cases/find-customer-by-id.use-case'
+import { FindServiceByIdUseCase } from '../services/application/use-cases/find-service-by-id.use-case'
+import { FindPartByIdUseCase } from '../parts/application/use-cases/find-part-by-id.use-case'
+import { UpdatePartStockUseCase } from '../parts/application/use-cases/update-part-stock.use-case'
 import { convertToCents } from '@/common/utils/convert-to-cents'
 import { WorkOrderFilterDto } from './dto/work-order-filter.dto'
 import { SendEmailQueueProvider } from '@/providers/email/job/send-email-queue/send-email-queue.provider'
@@ -20,9 +21,10 @@ export class WorkOrdersService {
   constructor(
     private readonly workOrderRepository: WorkOrderRepositoryPort,
     private readonly findVehicleByIdUseCase: FindVehicleByIdUseCase,
-    private readonly customersService: CustomersService,
-    private readonly servicesService: ServicesService,
-    private readonly partsService: PartsService,
+    private readonly findCustomerByIdUseCase: FindCustomerByIdUseCase,
+    private readonly findServiceByIdUseCase: FindServiceByIdUseCase,
+    private readonly findPartByIdUseCase: FindPartByIdUseCase,
+    private readonly updatePartStockUseCase: UpdatePartStockUseCase,
     private readonly sendEmailQueueProvider: SendEmailQueueProvider,
     private readonly envConfigService: EnvConfigService,
   ) {}
@@ -40,7 +42,9 @@ export class WorkOrdersService {
 
     if (createWorkOrderDto.services) {
       for (const serviceDto of createWorkOrderDto.services) {
-        const service = await this.servicesService.findOne(serviceDto.serviceId)
+        const service = await this.findServiceByIdUseCase.execute(
+          serviceDto.serviceId,
+        )
 
         serviceDto.price = convertToCents(service.price) * serviceDto.quantity
         totalAmount += serviceDto.price
@@ -49,7 +53,7 @@ export class WorkOrdersService {
 
     if (createWorkOrderDto.parts) {
       for (const partDto of createWorkOrderDto.parts) {
-        const part = await this.partsService.findOne(partDto.partId)
+        const part = await this.findPartByIdUseCase.execute(partDto.partId)
         partDto.price = convertToCents(part.unitPrice) * partDto.quantity
         totalAmount += partDto.price
       }
@@ -502,7 +506,7 @@ export class WorkOrdersService {
     customerId: number,
     vehicleId: number,
   ): Promise<void> {
-    const customer = await this.customersService.findOne(customerId)
+    const customer = await this.findCustomerByIdUseCase.execute(customerId)
     const vehicle = await this.findVehicleByIdUseCase.execute(vehicleId)
 
     if (!customer) {
@@ -539,14 +543,14 @@ export class WorkOrdersService {
       const difference = newQuantity - currentQuantity
 
       if (difference !== 0) {
-        const part = await this.partsService.findOne(partId)
+        const part = await this.findPartByIdUseCase.execute(partId)
         if (!part) {
           throw new CustomException(`Peça com ID ${partId} não encontrada`)
         }
 
         // Se está removendo peças, adicionar ao estoque
         if (difference < 0) {
-          await this.partsService.update(partId, {
+          await this.updatePartStockUseCase.execute(partId, {
             stock: part.stock + Math.abs(difference),
           })
         }
@@ -557,7 +561,7 @@ export class WorkOrdersService {
               `Estoque insuficiente para a peça ${part.name}. Disponível: ${part.stock}, Necessário: ${difference}`,
             )
           }
-          await this.partsService.update(partId, {
+          await this.updatePartStockUseCase.execute(partId, {
             stock: part.stock - difference,
           })
         }
@@ -567,9 +571,9 @@ export class WorkOrdersService {
     // Remover peças que não estão mais na lista
     for (const [partId, currentQuantity] of currentPartsMap) {
       if (!newPartsMap.has(partId)) {
-        const part = await this.partsService.findOne(partId)
+        const part = await this.findPartByIdUseCase.execute(partId)
         if (part) {
-          await this.partsService.update(partId, {
+          await this.updatePartStockUseCase.execute(partId, {
             stock: part.stock + currentQuantity,
           })
         }
@@ -586,7 +590,9 @@ export class WorkOrdersService {
 
     // Adicionar novos serviços
     for (const service of services) {
-      const serviceData = await this.servicesService.findOne(service.serviceId)
+      const serviceData = await this.findServiceByIdUseCase.execute(
+        service.serviceId,
+      )
       if (!serviceData) {
         throw new CustomException(
           `Serviço com ID ${service.serviceId} não encontrado`,
@@ -610,7 +616,7 @@ export class WorkOrdersService {
 
     // Adicionar novas peças
     for (const part of parts) {
-      const partData = await this.partsService.findOne(part.partId)
+      const partData = await this.findPartByIdUseCase.execute(part.partId)
       if (!partData) {
         throw new CustomException(`Peça com ID ${part.partId} não encontrada`)
       }

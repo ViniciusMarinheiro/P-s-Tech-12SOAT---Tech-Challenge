@@ -1,4 +1,4 @@
-import { CustomerResponseDto } from '@/modules/customers/dto/customer-response.dto'
+import { CustomerResponseDto } from '@/modules/customers/web/dto/customer-response.dto'
 import { ApiProperty } from '@nestjs/swagger'
 import { IsNumber, IsOptional, IsString } from 'class-validator'
 
