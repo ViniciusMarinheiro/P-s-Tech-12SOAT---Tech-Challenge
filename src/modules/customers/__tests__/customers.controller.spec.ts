@@ -1,13 +1,13 @@
 import { Test, TestingModule } from '@nestjs/testing'
-import { CustomersController } from '../web/customers.controller'
+import { CustomersController } from '../infrastructure/web/customers.controller'
 import { CreateCustomerUseCase } from '../application/use-cases/create-customer.use-case'
 import { FindCustomerByIdUseCase } from '../application/use-cases/find-customer-by-id.use-case'
 import { FindCustomerByDocumentUseCase } from '../application/use-cases/find-customer-by-document.use-case'
 import { ListCustomersUseCase } from '../application/use-cases/list-customers.use-case'
 import { UpdateCustomerUseCase } from '../application/use-cases/update-customer.use-case'
-import { CreateCustomerDto } from '../web/dto/create-customer.dto'
-import { UpdateCustomerDto } from '../web/dto/update-customer.dto'
-import { CustomerResponseDto } from '../web/dto/customer-response.dto'
+import { CreateCustomerDto } from '../infrastructure/web/dto/create-customer.dto'
+import { UpdateCustomerDto } from '../infrastructure/web/dto/update-customer.dto'
+import { CustomerResponseDto } from '../infrastructure/web/dto/customer-response.dto'
 
 describe('CustomersController', () => {
   let controller: CustomersController

@@ -1,7 +1,7 @@
 import { UnauthorizedException } from '@nestjs/common'
 import { AuthService } from '../../modules/auth/auth.service'
 import { LocalStrategy } from './local.strategy'
-import { UserRole } from '@/modules/auth/enums/user-role.enum'
+import { UserRole } from '@/modules/auth/domain/enums/user-role.enum'
 import { User } from '@/modules/users/infrastructure/database/user.entity'
 
 describe('LocalStrategy', () => {

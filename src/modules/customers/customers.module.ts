@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common'
 import { TypeOrmModule } from '@nestjs/typeorm'
-import { CustomersController } from './web/customers.controller'
+import { CustomersController } from './infrastructure/web/customers.controller'
 import { Customer } from './infrastructure/database/customer.entity'
 import { CustomerRepository } from './infrastructure/database/customer.repository'
 import { CustomerRepositoryPort } from './domain/repositories/customer.repository.port'

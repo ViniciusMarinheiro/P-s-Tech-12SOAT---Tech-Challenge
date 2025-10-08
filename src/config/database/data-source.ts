@@ -3,9 +3,9 @@ import { Customer } from '../../modules/customers/infrastructure/database/custom
 import { Vehicle } from '../../modules/vehicles/infrastructure/database/vehicle.entity'
 import { Service } from '../../modules/services/infrastructure/database/service.entity'
 import { Part } from '../../modules/parts/infrastructure/database/part.entity'
-import { WorkOrder } from '../../modules/work-orders/entities/work-order.entity'
-import { WorkOrderService } from '../../modules/work-orders/entities/work-order-service.entity'
-import { WorkOrderPart } from '../../modules/work-orders/entities/work-order-part.entity'
+import { WorkOrder } from '../../modules/work-orders/infrastructure/database/work-order.entity'
+import { WorkOrderService } from '../../modules/work-orders/infrastructure/database/work-order-service.entity'
+import { WorkOrderPart } from '../../modules/work-orders/infrastructure/database/work-order-part.entity'
 import { config } from 'dotenv'
 import { User } from '../../modules/users/infrastructure/database/user.entity'
 

@@ -1,5 +1,5 @@
 import * as bcrypt from 'bcryptjs'
-import { UserRole } from '../../../modules/auth/enums/user-role.enum'
+import { UserRole } from '../../../modules/auth/domain/enums/user-role.enum'
 import { User } from '../../../modules/users/infrastructure/database/user.entity'
 import { Customer } from '../../../modules/customers/infrastructure/database/customer.entity'
 import { Vehicle } from '../../../modules/vehicles/infrastructure/database/vehicle.entity'

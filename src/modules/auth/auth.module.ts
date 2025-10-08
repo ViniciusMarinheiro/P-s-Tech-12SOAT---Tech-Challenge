@@ -3,8 +3,11 @@ import { JwtModule } from '@nestjs/jwt'
 import { PassportModule } from '@nestjs/passport'
 import { ConfigModule, ConfigService } from '@nestjs/config'
 import { TypeOrmModule } from '@nestjs/typeorm'
-import { AuthService } from './auth.service'
-import { AuthController } from './auth.controller'
+import { ValidateUserUseCase } from './application/use-cases/validate-user.use-case'
+import { LoginUseCase } from './application/use-cases/login.use-case'
+import { RegisterUseCase } from './application/use-cases/register.use-case'
+import { GetProfileUseCase } from './application/use-cases/get-profile.use-case'
+import { AuthController } from './infrastructure/web/auth.controller'
 import { JwtStrategy } from '../../common/strategies/jwt.strategy'
 import { LocalStrategy } from '../../common/strategies/local.strategy'
 import { User } from '../users/infrastructure/database/user.entity'
@@ -29,7 +32,10 @@ import { EnvConfigModule } from '../../common/service/env/env-config.module'
     }),
   ],
   providers: [
-    AuthService,
+    ValidateUserUseCase,
+    LoginUseCase,
+    RegisterUseCase,
+    GetProfileUseCase,
     JwtStrategy,
     LocalStrategy,
     {
@@ -38,6 +44,11 @@ import { EnvConfigModule } from '../../common/service/env/env-config.module'
     },
   ],
   controllers: [AuthController],
-  exports: [AuthService],
+  exports: [
+    ValidateUserUseCase,
+    LoginUseCase,
+    RegisterUseCase,
+    GetProfileUseCase,
+  ],
 })
 export class AuthModule {}

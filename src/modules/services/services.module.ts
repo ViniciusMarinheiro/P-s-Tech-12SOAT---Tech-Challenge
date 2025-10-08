@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common'
 import { TypeOrmModule } from '@nestjs/typeorm'
-import { ServicesController } from './web/services.controller'
+import { ServicesController } from './infrastructure/web/services.controller'
 import { Service } from './infrastructure/database/service.entity'
 import { ServiceRepository } from './infrastructure/database/service.repository'
 import { ServiceRepositoryPort } from './domain/repositories/service.repository.port'

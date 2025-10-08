@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common'
 import { TypeOrmModule } from '@nestjs/typeorm'
-import { PartsController } from './web/parts.controller'
+import { PartsController } from './infrastructure/web/parts.controller'
 import { Part } from './infrastructure/database/part.entity'
 import { PartRepository } from './infrastructure/database/part.repository'
 import { PartRepositoryPort } from './domain/repositories/part.repository.port'

@@ -10,7 +10,7 @@ import { UpdateVehicleUseCase } from './application/use-cases/update-vehicle.use
 import { ListVehiclesUseCase } from './application/use-cases/list-vehicles.use-case'
 import { Vehicle } from './infrastructure/database/vehicle.entity'
 import { CustomersModule } from '../customers/customers.module'
-import { VehiclesController } from './web/vehicles.controller'
+import { VehiclesController } from './infrastructure/web/vehicles.controller'
 
 @Module({
   imports: [TypeOrmModule.forFeature([Vehicle]), CustomersModule],

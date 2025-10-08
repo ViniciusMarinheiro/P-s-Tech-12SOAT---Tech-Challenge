@@ -1,4 +1,4 @@
-import { UserRole } from '../../../auth/enums/user-role.enum'
+import { UserRole } from '@/modules/auth/domain/enums/user-role.enum'
 import { User } from '../../domain/entities/user.entity'
 
 export function makeUserDomain(overrides?: Partial<User>): User {

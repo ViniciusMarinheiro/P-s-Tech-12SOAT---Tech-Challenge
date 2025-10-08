@@ -1,12 +1,12 @@
 import { Test, TestingModule } from '@nestjs/testing'
-import { ServicesController } from '../web/services.controller'
+import { ServicesController } from '../infrastructure/web/services.controller'
 import { CreateServiceUseCase } from '../application/use-cases/create-service.use-case'
 import { FindServiceByIdUseCase } from '../application/use-cases/find-service-by-id.use-case'
 import { ListServicesUseCase } from '../application/use-cases/list-services.use-case'
 import { UpdateServiceUseCase } from '../application/use-cases/update-service.use-case'
-import { CreateServiceDto } from '../web/dto/create-service.dto'
-import { UpdateServiceDto } from '../web/dto/update-service.dto'
-import { ServiceResponseDto } from '../web/dto/service-response.dto'
+import { CreateServiceDto } from '../infrastructure/web/dto/create-service.dto'
+import { UpdateServiceDto } from '../infrastructure/web/dto/update-service.dto'
+import { ServiceResponseDto } from '../infrastructure/web/dto/service-response.dto'
 
 describe('ServicesController', () => {
   let controller: ServicesController

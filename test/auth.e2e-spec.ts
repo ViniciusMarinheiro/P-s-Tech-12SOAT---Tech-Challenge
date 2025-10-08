@@ -6,8 +6,7 @@ import { AppModule } from '../src/app.module'
 import { TypeOrmModule } from '@nestjs/typeorm'
 import { User } from '../src/modules/users/infrastructure/database/user.entity'
 import { Repository } from 'typeorm'
-import { RegisterDto } from '../src/modules/auth/dtos/register.dto'
-import { UserRole } from '../src/modules/auth/enums/user-role.enum'
+import { UserRole } from '../src/modules/auth/domain/enums/user-role.enum'
 import { seed } from '../src/config/database/seeds/seed'
 
 describe('AuthController (E2E)', () => {
@@ -77,7 +76,7 @@ describe('AuthController (E2E)', () => {
 
   describe('/auth/register (POST)', () => {
     it('should create a new user when admin is authenticated', () => {
-      const registerDto: RegisterDto = {
+      const registerDto: any = {
         email: 'test@example.com',
         password: 'StrongPassword123!',
         name: 'Test User',
@@ -102,7 +101,7 @@ describe('AuthController (E2E)', () => {
     })
 
     it('should return a Bad Request if email is already in use', async () => {
-      const registerDto: RegisterDto = {
+      const registerDto: any = {
         email: 'test@example.com',
         password: 'StrongPassword123!',
         name: 'Test User',
@@ -122,7 +121,7 @@ describe('AuthController (E2E)', () => {
     })
 
     it('should return 401 Unauthorized if no token is provided', () => {
-      const registerDto: RegisterDto = {
+      const registerDto: any = {
         email: 'unauthorized@test.com',
         password: 'StrongPassword123!',
         name: 'Unauthorized User',
