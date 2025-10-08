@@ -1,0 +1,7 @@
+export interface CreateVehicleInput {
+  customerId: number
+  plate: string
+  brand: string
+  model: string
+  year: number
+}

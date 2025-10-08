@@ -1,4 +1,4 @@
-import { UserJwtPayload } from '@/modules/auth/interfaces/auth-response.interface'
+import { UserJwtPayload } from '@/modules/auth/domain/interfaces/auth-response.interface'
 import { createParamDecorator, ExecutionContext } from '@nestjs/common'
 
 export const GetCurrentUserId = createParamDecorator(

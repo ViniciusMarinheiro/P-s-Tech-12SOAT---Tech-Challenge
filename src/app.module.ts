@@ -1,7 +1,7 @@
 // app.module.ts
 import { Module } from '@nestjs/common'
 import { APP_GUARD } from '@nestjs/core'
-import { AppController } from './app.controller'
+import { AppController } from './modules/app.controller'
 import { AppService } from './app.service'
 import { AuthModule } from './modules/auth/auth.module'
 import { ConfigModule, ConfigService } from '@nestjs/config'
