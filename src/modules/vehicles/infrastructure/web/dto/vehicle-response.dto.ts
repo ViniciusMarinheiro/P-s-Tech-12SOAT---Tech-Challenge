@@ -17,9 +17,9 @@ export class VehicleResponseDto {
   @IsNumber()
   customerId: number
 
-  @ApiProperty({ description: 'Cliente' })
-  @IsNumber()
-  customer: CustomerResponseDto
+  @ApiProperty({ description: 'Cliente', required: false })
+  @IsOptional()
+  customer?: CustomerResponseDto
 
   @ApiProperty({ description: 'Placa do veículo' })
   @IsString()

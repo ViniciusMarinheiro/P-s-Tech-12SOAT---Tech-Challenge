@@ -27,6 +27,7 @@ import { ApproveHashViewUseCase } from '../../application/use-cases/approve-hash
 import { CreateWorkOrderDto } from './dto/create-work-order.dto'
 import { UpdateWorkOrderDto } from './dto/update-work-order.dto'
 import { WorkOrderResponseDto } from './dto/work-order-response.dto'
+import { WorkOrder } from '../../domain/entities/work-order.entity'
 import { WorkOrderStatusEnum } from '../../domain/enums/work-order-status.enum'
 import { GetCurrentUserId } from '@/common/decorators/get-current-user-id.decorator'
 import { WorkOrderFilterDto } from './dto/work-order-filter.dto'

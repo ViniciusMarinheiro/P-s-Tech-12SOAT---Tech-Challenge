@@ -1,12 +1,12 @@
 import { Test, TestingModule } from '@nestjs/testing'
-import { PartsController } from '../web/parts.controller'
 import { CreatePartUseCase } from '../application/use-cases/create-part.use-case'
 import { FindPartByIdUseCase } from '../application/use-cases/find-part-by-id.use-case'
 import { ListPartsUseCase } from '../application/use-cases/list-parts.use-case'
 import { UpdatePartUseCase } from '../application/use-cases/update-part.use-case'
-import { CreatePartDto } from '../web/dto/create-part.dto'
-import { UpdatePartDto } from '../web/dto/update-part.dto'
-import { PartResponseDto } from '../web/dto/part-response.dto'
+import { PartResponseDto } from '../infrastructure/web/dto/part-response.dto'
+import { CreatePartDto } from '../infrastructure/web/dto/create-part.dto'
+import { UpdatePartDto } from '../infrastructure/web/dto/update-part.dto'
+import { PartsController } from '../infrastructure/web/parts.controller'
 
 describe('PartsController', () => {
   let controller: PartsController

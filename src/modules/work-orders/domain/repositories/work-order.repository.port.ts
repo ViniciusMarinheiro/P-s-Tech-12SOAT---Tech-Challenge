@@ -1,40 +1,38 @@
 import { WorkOrderStatusEnum } from '../enums/work-order-status.enum'
 import { CreateWorkOrderDto } from '../../infrastructure/web/dto/create-work-order.dto'
 import { UpdateWorkOrderDto } from '../../infrastructure/web/dto/update-work-order.dto'
-import { WorkOrderResponseDto } from '../../infrastructure/web/dto/work-order-response.dto'
 import { WorkOrderFilterDto } from '../../infrastructure/web/dto/work-order-filter.dto'
+import { WorkOrder } from '../entities/work-order.entity'
 
 export abstract class WorkOrderRepositoryPort {
   abstract create(
     createWorkOrderDto: CreateWorkOrderDto,
     totalAmount: number,
-  ): Promise<WorkOrderResponseDto>
+  ): Promise<WorkOrder>
 
-  abstract findById(id: number): Promise<WorkOrderResponseDto | null>
+  abstract findById(id: number): Promise<WorkOrder | null>
 
-  abstract findByCustomerId(customerId: number): Promise<WorkOrderResponseDto[]>
+  abstract findByCustomerId(customerId: number): Promise<WorkOrder[]>
 
-  abstract findByCustomerDocument(
-    document: string,
-  ): Promise<WorkOrderResponseDto[]>
+  abstract findByCustomerDocument(document: string): Promise<WorkOrder[]>
 
-  abstract findByVehicleId(vehicleId: number): Promise<WorkOrderResponseDto[]>
+  abstract findByVehicleId(vehicleId: number): Promise<WorkOrder[]>
 
-  abstract findByStatus(status: string): Promise<WorkOrderResponseDto[]>
+  abstract findByStatus(status: string): Promise<WorkOrder[]>
 
   abstract update(
     id: number,
     updateWorkOrderDto: UpdateWorkOrderDto,
-  ): Promise<WorkOrderResponseDto>
+  ): Promise<WorkOrder>
 
   abstract delete(id: number): Promise<void>
 
-  abstract findAll(filter: WorkOrderFilterDto): Promise<WorkOrderResponseDto[]>
+  abstract findAll(filter: WorkOrderFilterDto): Promise<WorkOrder[]>
 
   abstract updateStatus(
     id: number,
     status: WorkOrderStatusEnum | string,
-  ): Promise<WorkOrderResponseDto>
+  ): Promise<WorkOrder>
 
   abstract removeWorkOrderServices(workOrderId: number): Promise<void>
   abstract addWorkOrderService(
@@ -48,11 +46,6 @@ export abstract class WorkOrderRepositoryPort {
     partData: { partId: number; quantity: number; totalPrice: number },
   ): Promise<void>
 
-  abstract findByHashView(
-    hashView: string,
-  ): Promise<WorkOrderResponseDto | null>
-  abstract updateFinishedAt(
-    id: number,
-    finishedAt: Date,
-  ): Promise<WorkOrderResponseDto>
+  abstract findByHashView(hashView: string): Promise<WorkOrder | null>
+  abstract updateFinishedAt(id: number, finishedAt: Date): Promise<WorkOrder>
 }

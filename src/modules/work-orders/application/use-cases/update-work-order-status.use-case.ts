@@ -40,7 +40,7 @@ export class UpdateWorkOrderStatusUseCase {
 
     if (status === WorkOrderStatusEnum.FINISHED) {
       await this.sendEmailQueueProvider.execute({
-        recipient: workOrder.customer.email,
+        recipient: workOrder.customer!.email,
         subject: `Ordem de serviço ${workOrder.id} - Finalizada`,
         body: `Finalizada`,
       })
@@ -49,12 +49,12 @@ export class UpdateWorkOrderStatusUseCase {
     if (status === WorkOrderStatusEnum.IN_PROGRESS) {
       await Promise.all([
         this.sendEmailQueueProvider.execute({
-          recipient: workOrder.customer.email,
+          recipient: workOrder.customer!.email,
           subject: `Ordem de serviço ${workOrder.id} - Em andamento`,
           body: `Em andamento`,
         }),
         this.sendEmailQueueProvider.execute({
-          recipient: workOrder.user.email,
+          recipient: workOrder.user!.email,
           subject: `Ordem de serviço ${workOrder.id} - Confirmada`,
           body: `Confirmada`,
         }),
@@ -66,7 +66,7 @@ export class UpdateWorkOrderStatusUseCase {
       status === WorkOrderStatusEnum.AWAITING_APPROVAL
     ) {
       await this.sendEmailQueueProvider.execute({
-        recipient: workOrder.customer.email,
+        recipient: workOrder.customer!.email,
         subject: `Ordem de serviço ${workOrder.id} - Aguardando aprovação`,
         body: `Aguardando aprovação`,
       })
@@ -75,7 +75,7 @@ export class UpdateWorkOrderStatusUseCase {
     if (status === WorkOrderStatusEnum.DELIVERED) {
       await this.workOrderRepository.updateFinishedAt(id, new Date())
       await this.sendEmailQueueProvider.execute({
-        recipient: workOrder.customer.email,
+        recipient: workOrder.customer!.email,
         subject: `Ordem de serviço ${workOrder.id} - Entregue com sucesso!`,
         body: `Entregue com sucesso`,
       })

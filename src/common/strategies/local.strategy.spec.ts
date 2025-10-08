@@ -1,22 +1,15 @@
 import { UnauthorizedException } from '@nestjs/common'
-import { AuthService } from '../../modules/auth/auth.service'
 import { LocalStrategy } from './local.strategy'
 import { UserRole } from '@/modules/auth/domain/enums/user-role.enum'
-import { User } from '@/modules/users/infrastructure/database/user.entity'
+import { ValidateUserUseCase } from '@/modules/auth/application/use-cases/validate-user.use-case'
 
 describe('LocalStrategy', () => {
   let strategy: LocalStrategy
-  // Criamos um mock tipado do AuthService
-  let authService: jest.Mocked<AuthService>
+  let validateUserUseCase: jest.Mocked<ValidateUserUseCase>
 
   beforeEach(() => {
-    // Simulamos o AuthService com o método `validateUser` mockado
-    authService = {
-      validateUser: jest.fn(),
-    } as any // Usamos 'as any' para simplificar o mock parcial
-
-    // Instanciamos a estratégia com o serviço mockado
-    strategy = new LocalStrategy(authService)
+    validateUserUseCase = { execute: jest.fn() } as any
+    strategy = new LocalStrategy(validateUserUseCase)
 
     // Limpamos os mocks antes de cada teste
     jest.clearAllMocks()
@@ -41,15 +34,15 @@ describe('LocalStrategy', () => {
       }
 
       // Configuramos o mock para retornar o usuário
-      authService.validateUser.mockResolvedValue(user)
+      ;(validateUserUseCase.execute as jest.Mock).mockResolvedValue(user)
 
       // 2. Executamos o método
       const result = await strategy.validate(email, password)
 
       // 3. Validamos o resultado
       expect(result).toEqual(user)
-      expect(authService.validateUser).toHaveBeenCalledWith(email, password)
-      expect(authService.validateUser).toHaveBeenCalledTimes(1)
+      expect(validateUserUseCase.execute).toHaveBeenCalledWith(email, password)
+      expect(validateUserUseCase.execute).toHaveBeenCalledTimes(1)
     })
 
     it('should throw an UnauthorizedException when credentials are invalid', async () => {
@@ -58,7 +51,7 @@ describe('LocalStrategy', () => {
       const password = 'wrongpassword'
 
       // Configuramos o mock para retornar null
-      authService.validateUser.mockResolvedValue(null)
+      ;(validateUserUseCase.execute as jest.Mock).mockResolvedValue(null)
 
       // 2. Executamos o método e validamos a exceção
       await expect(strategy.validate(email, password)).rejects.toThrow(
@@ -67,7 +60,7 @@ describe('LocalStrategy', () => {
       await expect(strategy.validate(email, password)).rejects.toThrow(
         'Credenciais inválidas',
       )
-      expect(authService.validateUser).toHaveBeenCalledWith(email, password)
+      expect(validateUserUseCase.execute).toHaveBeenCalledWith(email, password)
     })
   })
 })

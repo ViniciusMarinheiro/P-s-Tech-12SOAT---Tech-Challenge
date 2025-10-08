@@ -1,13 +1,13 @@
 import { Test, TestingModule } from '@nestjs/testing'
-import { VehiclesController } from '../web/vehicles.controller'
-import { CreateVehicleDto } from '../web/dto/create-vehicle.dto'
-import { UpdateVehicleDto } from '../web/dto/update-vehicle.dto'
-import { VehicleResponseDto } from '../web/dto/vehicle-response.dto'
 import { CreateVehicleUseCase } from '../application/use-cases/create-vehicle.use-case'
 import { FindVehicleByIdUseCase } from '../application/use-cases/find-vehicle-by-id.use-case'
 import { ListVehiclesUseCase } from '../application/use-cases/list-vehicles.use-case'
 import { UpdateVehicleUseCase } from '../application/use-cases/update-vehicle.use-case'
-import { CustomerResponseDto } from '@/modules/customers/dto/customer-response.dto'
+import { VehiclesController } from '../infrastructure/web/vehicles.controller'
+import { CustomerResponseDto } from '@/modules/customers/infrastructure/web/dto/customer-response.dto'
+import { CreateVehicleDto } from '../infrastructure/web/dto/create-vehicle.dto'
+import { VehicleResponseDto } from '../infrastructure/web/dto/vehicle-response.dto'
+import { UpdateVehicleDto } from '../infrastructure/web/dto/update-vehicle.dto'
 
 // Mock dos Use Cases para simular seu comportamento
 const mockCreateVehicleUseCase = {

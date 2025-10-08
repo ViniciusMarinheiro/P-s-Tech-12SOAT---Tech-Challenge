@@ -8,7 +8,8 @@ import { WorkOrderPart } from './work-order-part.entity'
 import { WorkOrderRepositoryPort } from '../../domain/repositories/work-order.repository.port'
 import { CreateWorkOrderDto } from '../web/dto/create-work-order.dto'
 import { UpdateWorkOrderDto } from '../web/dto/update-work-order.dto'
-import { WorkOrderResponseDto } from '../web/dto/work-order-response.dto'
+import { WorkOrder as DomainWorkOrder } from '../../domain/entities/work-order.entity'
+import { WorkOrderDomainMapper } from '../mappers/work-order.mapper'
 import { CustomException } from '@/common/exceptions/customException'
 import { ErrorMessages } from '@/common/constants/errorMessages'
 import { Part } from '@/modules/parts/infrastructure/database/part.entity'
@@ -41,100 +42,10 @@ export class WorkOrderRepository extends WorkOrderRepositoryPort {
     super()
   }
 
-  private toDto(workOrder: WorkOrder): WorkOrderResponseDto {
-    const dto = new WorkOrderResponseDto()
-    dto.id = workOrder.id
-    dto.customerId = workOrder.customerId
-    dto.vehicleId = workOrder.vehicleId
-    dto.status = workOrder.status
-    dto.totalAmount = workOrder.totalAmount
-    dto.createdAt = workOrder.createdAt
-    dto.updatedAt = workOrder.updatedAt
-    dto.startedAt = workOrder.startedAt
-    if (workOrder.finishedAt) {
-      dto.finishedAt = workOrder.finishedAt
-    }
-    dto.hashView = workOrder.hashView
-
-    dto.services = []
-    dto.parts = []
-
-    return dto
-  }
-
-  private mapWorkOrderWithRelations(
-    workOrder: WorkOrder,
-  ): WorkOrderResponseDto {
-    const dto = new WorkOrderResponseDto()
-    dto.id = workOrder.id
-    dto.customerId = workOrder.customerId
-    dto.vehicleId = workOrder.vehicleId
-    dto.status = workOrder.status
-    dto.totalAmount = convertToMoney(workOrder.totalAmount)
-    dto.hashView = workOrder.hashView
-    dto.createdAt = workOrder.createdAt
-    dto.updatedAt = workOrder.updatedAt
-    dto.startedAt = workOrder.startedAt
-    if (workOrder.finishedAt) {
-      dto.finishedAt = workOrder.finishedAt
-      dto.timeToFinish =
-        Math.round(
-          (workOrder.finishedAt?.getTime() - workOrder.startedAt?.getTime()) /
-            (1000 * 60),
-        ) || 0
-      dto.timeToFinishText = formatTimeToFinish(dto.timeToFinish)
-    }
-
-    if (workOrder.customer) {
-      dto.customer = {
-        id: workOrder.customer.id,
-        name: workOrder.customer.name,
-        email: workOrder.customer.email,
-      }
-    }
-
-    if (workOrder.vehicle) {
-      dto.vehicle = {
-        id: workOrder.vehicle.id,
-        plate: workOrder.vehicle.plate,
-      }
-    }
-
-    if (workOrder.user) {
-      dto.user = {
-        id: workOrder.user.id,
-        name: workOrder.user.name,
-        email: workOrder.user.email,
-      }
-    }
-
-    dto.services =
-      workOrder.workOrderServices?.map((service) => ({
-        id: service.id,
-        serviceId: service.serviceId,
-        serviceName: service.service?.name || '',
-        quantity: service.quantity,
-        unitPrice: convertToMoney(service.service?.price || 0),
-        totalPrice: convertToMoney(service.totalPrice),
-      })) || []
-
-    dto.parts =
-      workOrder.workOrderParts?.map((part) => ({
-        id: part.id,
-        partId: part.partId,
-        partName: part.part?.name || '',
-        quantity: part.quantity,
-        unitPrice: convertToMoney(part.part?.unitPrice || 0),
-        totalPrice: convertToMoney(part.totalPrice),
-      })) || []
-
-    return dto
-  }
-
   async create(
     createWorkOrderDto: CreateWorkOrderDto,
     totalAmount: number,
-  ): Promise<WorkOrderResponseDto> {
+  ): Promise<DomainWorkOrder> {
     return await this.dataSource.transaction(async (manager) => {
       const workOrder = manager.create(WorkOrder, {
         customerId: createWorkOrderDto.customerId,
@@ -232,31 +143,27 @@ export class WorkOrderRepository extends WorkOrderRepositoryPort {
         )
       }
 
-      return this.toDto(savedWorkOrder)
+      return WorkOrderDomainMapper.toDomain(savedWorkOrder)
     })
   }
 
-  async findById(id: number): Promise<WorkOrderResponseDto | null> {
+  async findById(id: number): Promise<DomainWorkOrder | null> {
     const workOrder = await this.workOrderRepository.findOne({
       where: { id },
       relations: this.workOrderRelations,
     })
-    return workOrder ? this.mapWorkOrderWithRelations(workOrder) : null
+    return workOrder ? WorkOrderDomainMapper.withRelations(workOrder) : null
   }
 
-  async findByCustomerId(customerId: number): Promise<WorkOrderResponseDto[]> {
+  async findByCustomerId(customerId: number): Promise<DomainWorkOrder[]> {
     const workOrders = await this.workOrderRepository.find({
       where: { customerId },
       relations: this.workOrderRelations,
     })
-    return workOrders.map((workOrder) =>
-      this.mapWorkOrderWithRelations(workOrder),
-    )
+    return workOrders.map((wo) => WorkOrderDomainMapper.withRelations(wo))
   }
 
-  async findByCustomerDocument(
-    document: string,
-  ): Promise<WorkOrderResponseDto[]> {
+  async findByCustomerDocument(document: string): Promise<DomainWorkOrder[]> {
     const workOrders = await this.workOrderRepository
       .createQueryBuilder('workOrder')
       .leftJoinAndSelect('workOrder.customer', 'customer')
@@ -271,35 +178,29 @@ export class WorkOrderRepository extends WorkOrderRepositoryPort {
       })
       .getMany()
 
-    return workOrders.map((workOrder) =>
-      this.mapWorkOrderWithRelations(workOrder),
-    )
+    return workOrders.map((wo) => WorkOrderDomainMapper.withRelations(wo))
   }
 
-  async findByVehicleId(vehicleId: number): Promise<WorkOrderResponseDto[]> {
+  async findByVehicleId(vehicleId: number): Promise<DomainWorkOrder[]> {
     const workOrders = await this.workOrderRepository.find({
       where: { vehicleId },
       relations: this.workOrderRelations,
     })
-    return workOrders.map((workOrder) =>
-      this.mapWorkOrderWithRelations(workOrder),
-    )
+    return workOrders.map((wo) => WorkOrderDomainMapper.withRelations(wo))
   }
 
-  async findByStatus(status: string): Promise<WorkOrderResponseDto[]> {
+  async findByStatus(status: string): Promise<DomainWorkOrder[]> {
     const workOrders = await this.workOrderRepository.find({
       where: { status: status as WorkOrderStatusEnum },
       relations: this.workOrderRelations,
     })
-    return workOrders.map((workOrder) =>
-      this.mapWorkOrderWithRelations(workOrder),
-    )
+    return workOrders.map((wo) => WorkOrderDomainMapper.withRelations(wo))
   }
 
   async update(
     id: number,
     updateWorkOrderDto: UpdateWorkOrderDto,
-  ): Promise<WorkOrderResponseDto> {
+  ): Promise<DomainWorkOrder> {
     await this.workOrderRepository.update(id, updateWorkOrderDto as any)
     const updatedWorkOrder = await this.workOrderRepository.findOne({
       where: { id },
@@ -312,7 +213,7 @@ export class WorkOrderRepository extends WorkOrderRepositoryPort {
       )
     }
 
-    return this.toDto(updatedWorkOrder)
+    return WorkOrderDomainMapper.toDomain(updatedWorkOrder)
   }
 
   async delete(id: number): Promise<void> {
@@ -328,7 +229,7 @@ export class WorkOrderRepository extends WorkOrderRepositoryPort {
 
   async findAll(
     workOrderFilterDto: WorkOrderFilterDto,
-  ): Promise<WorkOrderResponseDto[]> {
+  ): Promise<DomainWorkOrder[]> {
     const { id, status, customerId, vehicleId, customerDocument } =
       workOrderFilterDto
 
@@ -364,15 +265,10 @@ export class WorkOrderRepository extends WorkOrderRepositoryPort {
       relations: this.workOrderRelations,
     })
 
-    return workOrders.map((workOrder) =>
-      this.mapWorkOrderWithRelations(workOrder),
-    )
+    return workOrders.map((wo) => WorkOrderDomainMapper.withRelations(wo))
   }
 
-  async updateStatus(
-    id: number,
-    status: string,
-  ): Promise<WorkOrderResponseDto> {
+  async updateStatus(id: number, status: string): Promise<DomainWorkOrder> {
     await this.workOrderRepository.update(id, {
       status: status as WorkOrderStatusEnum,
     })
@@ -387,7 +283,7 @@ export class WorkOrderRepository extends WorkOrderRepositoryPort {
       )
     }
 
-    return this.toDto(updatedWorkOrder)
+    return WorkOrderDomainMapper.toDomain(updatedWorkOrder)
   }
 
   async removeWorkOrderServices(workOrderId: number): Promise<void> {
@@ -424,18 +320,18 @@ export class WorkOrderRepository extends WorkOrderRepositoryPort {
     await this.workOrderPartRepository.save(workOrderPart)
   }
 
-  async findByHashView(hashView: string): Promise<WorkOrderResponseDto | null> {
+  async findByHashView(hashView: string): Promise<DomainWorkOrder | null> {
     const workOrder = await this.workOrderRepository.findOne({
       where: { hashView },
       relations: this.workOrderRelations,
     })
-    return workOrder ? this.mapWorkOrderWithRelations(workOrder) : null
+    return workOrder ? WorkOrderDomainMapper.withRelations(workOrder) : null
   }
 
   async updateFinishedAt(
     id: number,
     finishedAt: Date,
-  ): Promise<WorkOrderResponseDto> {
+  ): Promise<DomainWorkOrder> {
     await this.workOrderRepository.update(id, { finishedAt })
     const updatedWorkOrder = await this.workOrderRepository.findOne({
       where: { id },
@@ -449,6 +345,6 @@ export class WorkOrderRepository extends WorkOrderRepositoryPort {
       )
     }
 
-    return this.mapWorkOrderWithRelations(updatedWorkOrder)
+    return WorkOrderDomainMapper.withRelations(updatedWorkOrder)
   }
 }
