@@ -22,6 +22,13 @@ export class RegisterUseCase {
       password: hashedPassword,
       role: UserRole.ATTENDANT,
     })
-    return savedUser
+    return {
+      id: savedUser.id,
+      name: savedUser.name,
+      email: savedUser.email,
+      role: savedUser.role,
+      createdAt: savedUser.createdAt,
+      updatedAt: savedUser.updatedAt,
+    }
   }
 }

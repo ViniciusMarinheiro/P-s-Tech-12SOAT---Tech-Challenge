@@ -2,12 +2,10 @@ import 'crypto'
 import { Test, TestingModule } from '@nestjs/testing'
 import { INestApplication, ValidationPipe, HttpStatus } from '@nestjs/common'
 import * as request from 'supertest'
-import { AppModule } from '../src/app.module'
-import { TypeOrmModule } from '@nestjs/typeorm'
-import { User } from '../src/modules/users/infrastructure/database/user.entity'
+import { AppModule } from '@/app.module'
+import { User } from '@/modules/users/infrastructure/database/user.entity'
 import { Repository } from 'typeorm'
-import { UserRole } from '../src/modules/auth/domain/enums/user-role.enum'
-import { seed } from '../src/config/database/seeds/seed'
+import { UserRole } from '@/modules/auth/domain/enums/user-role.enum'
 
 describe('AuthController (E2E)', () => {
   let app: INestApplication

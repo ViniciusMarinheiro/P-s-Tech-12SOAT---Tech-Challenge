@@ -2,13 +2,12 @@ import 'crypto'
 import { Test, TestingModule } from '@nestjs/testing'
 import { INestApplication, HttpStatus } from '@nestjs/common'
 import * as request from 'supertest'
-import { AppModule } from '../src/app.module'
+import { AppModule } from '@/app.module'
 import { TypeOrmModule } from '@nestjs/typeorm'
 import { Repository } from 'typeorm'
-import { User } from '../src/modules/users/infrastructure/database/user.entity'
-import { Customer } from '../src/modules/customers/entities/customer.entity'
-import { UserRole } from '../src/modules/auth/enums/user-role.enum'
-import { CreateCustomerDto } from '../src/modules/customers/dto/create-customer.dto'
+import { User } from '@/modules/users/infrastructure/database/user.entity'
+import { Customer } from '@/modules/customers/infrastructure/database/customer.entity'
+import { UserRole } from '@/modules/auth/domain/enums/user-role.enum'
 
 describe('CustomersController (E2E)', () => {
   let app: INestApplication
@@ -86,7 +85,7 @@ describe('CustomersController (E2E)', () => {
   })
 
   describe('/customers (POST)', () => {
-    const createCustomerDto: CreateCustomerDto = {
+    const createCustomerDto: any = {
       name: 'Test Customer',
       email: 'customer@test.com',
       documentNumber: '11122233344',
