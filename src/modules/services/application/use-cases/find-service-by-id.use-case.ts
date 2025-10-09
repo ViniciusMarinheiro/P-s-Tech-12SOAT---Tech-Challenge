@@ -14,6 +14,6 @@ export class FindServiceByIdUseCase {
     if (!service) {
       throw new CustomException(ErrorMessages.SERVICE.NOT_FOUND)
     }
-    return { ...service, price: convertToMoney(service.price) }
+    return service
   }
 }

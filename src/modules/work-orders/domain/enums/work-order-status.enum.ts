@@ -5,4 +5,5 @@ export enum WorkOrderStatusEnum {
   IN_PROGRESS = 'IN_PROGRESS',
   FINISHED = 'FINISHED',
   DELIVERED = 'DELIVERED',
+  REJECTED = 'REJECTED',
 }

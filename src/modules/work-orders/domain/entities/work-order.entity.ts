@@ -8,6 +8,7 @@ export interface WorkOrderProps {
   vehicleId: number
   userId: number
   hashView: string
+  protocol: string
   status: WorkOrderStatusEnum
   totalAmount: number
   createdAt: Date
@@ -18,6 +19,7 @@ export interface WorkOrderProps {
   parts?: WorkOrderPart[]
   customer?: { id: number; name: string; email: string }
   user?: { id: number; name: string; email: string }
+  vehicle?: { id: number; plate: string; model: string; brand: string }
 }
 
 export class WorkOrder {
@@ -26,6 +28,7 @@ export class WorkOrder {
   readonly vehicleId: number
   readonly userId: number
   readonly hashView: string
+  readonly protocol: string
   readonly status: WorkOrderStatusEnum
   readonly totalAmount: number
   readonly createdAt: Date
@@ -36,6 +39,7 @@ export class WorkOrder {
   readonly parts?: WorkOrderPart[]
   readonly customer?: { id: number; name: string; email: string }
   readonly user?: { id: number; name: string; email: string }
+  readonly vehicle?: { id: number; plate: string; model: string; brand: string }
 
   private constructor(props: WorkOrderProps) {
     this.id = props.id
@@ -43,6 +47,7 @@ export class WorkOrder {
     this.vehicleId = props.vehicleId
     this.userId = props.userId
     this.hashView = props.hashView
+    this.protocol = props.protocol
     this.status = props.status
     this.totalAmount = props.totalAmount
     this.createdAt = props.createdAt
@@ -53,6 +58,7 @@ export class WorkOrder {
     this.parts = props.parts
     this.customer = props.customer
     this.user = props.user
+    this.vehicle = props.vehicle
   }
 
   static fromProps(props: WorkOrderProps): WorkOrder {

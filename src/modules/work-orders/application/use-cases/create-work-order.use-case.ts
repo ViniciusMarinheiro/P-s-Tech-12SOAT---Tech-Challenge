@@ -7,6 +7,7 @@ import { FindCustomerByIdUseCase } from '@/modules/customers/application/use-cas
 import { FindVehicleByIdUseCase } from '@/modules/vehicles/application/use-cases/find-vehicle-by-id.use-case'
 import { convertToCents } from '@/common/utils/convert-to-cents'
 import { CustomException } from '@/common/exceptions/customException'
+import { ProtocolGenerator } from '../../../../common/utils/protocol-generator.util'
 
 @Injectable()
 export class CreateWorkOrderUseCase {
@@ -18,7 +19,12 @@ export class CreateWorkOrderUseCase {
     private readonly findPartByIdUseCase: FindPartByIdUseCase,
   ) {}
 
-  async execute(dto: CreateWorkOrderDto, userId: number): Promise<void> {
+  async execute(
+    dto: CreateWorkOrderDto,
+    userId: number,
+  ): Promise<{
+    protocol: string
+  }> {
     const customer = await this.findCustomerByIdUseCase.execute(dto.customerId)
     const vehicle = await this.findVehicleByIdUseCase.execute(dto.vehicleId)
     if (!customer) {
@@ -55,6 +61,11 @@ export class CreateWorkOrderUseCase {
       }
     }
 
-    await this.workOrderRepository.create({ ...dto, userId }, totalAmount)
+    const workOrder = await this.workOrderRepository.create(
+      { ...dto, userId },
+      totalAmount,
+    )
+
+    return { protocol: workOrder.protocol }
   }
 }

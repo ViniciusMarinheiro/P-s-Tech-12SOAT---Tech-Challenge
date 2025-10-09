@@ -9,6 +9,6 @@ export class ListPartsUseCase {
 
   async execute(): Promise<PartDomain[]> {
     const parts = await this.repo.findAll()
-    return parts.map((p) => ({ ...p, unitPrice: convertToMoney(p.unitPrice) }))
+    return parts
   }
 }

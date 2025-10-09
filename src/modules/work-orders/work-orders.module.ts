@@ -21,6 +21,7 @@ import { UpdateWorkOrderUseCase } from './application/use-cases/update-work-orde
 import { UpdateWorkOrderStatusUseCase } from './application/use-cases/update-work-order-status.use-case'
 import { FindWorkOrderByHashViewUseCase } from './application/use-cases/find-work-orders-by-hash-view.use-case'
 import { ApproveHashViewUseCase } from './application/use-cases/approve-hash-view.use-case'
+import { RejectHashViewUseCase } from './application/use-cases/reject-hash-view.use-case'
 
 @Module({
   imports: [
@@ -47,6 +48,7 @@ import { ApproveHashViewUseCase } from './application/use-cases/approve-hash-vie
     UpdateWorkOrderStatusUseCase,
     FindWorkOrderByHashViewUseCase,
     ApproveHashViewUseCase,
+    RejectHashViewUseCase,
   ],
   exports: [
     CreateWorkOrderUseCase,

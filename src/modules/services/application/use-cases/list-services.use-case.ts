@@ -9,6 +9,6 @@ export class ListServicesUseCase {
 
   async execute(): Promise<ServiceDomain[]> {
     const services = await this.repo.findAll()
-    return services.map((s) => ({ ...s, price: convertToMoney(s.price) }))
+    return services
   }
 }

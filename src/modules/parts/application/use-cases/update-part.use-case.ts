@@ -3,6 +3,7 @@ import { PartRepositoryPort } from '../../domain/repositories/part.repository.po
 import { UpdatePartInput } from '../../domain/interfaces/update-part.input.interface'
 import { PartDomain } from '../../domain/entities/part.entity'
 import { CustomException } from '@/common/exceptions/customException'
+import { ErrorMessages } from '@/common/constants/errorMessages'
 
 @Injectable()
 export class UpdatePartUseCase {
@@ -12,9 +13,9 @@ export class UpdatePartUseCase {
     if (input.name) {
       const exists = await this.repo.exists(input.name, id)
       if (exists.exists) {
-        throw new CustomException('nome já está sendo usado')
+        throw new CustomException(ErrorMessages.PART.ALREADY_EXISTS(input.name))
       }
     }
-    return this.repo.update(id, input)
+    return await this.repo.update(id, input)
   }
 }

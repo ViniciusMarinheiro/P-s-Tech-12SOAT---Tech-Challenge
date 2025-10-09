@@ -8,6 +8,6 @@ export class UpdatePartStockUseCase {
   constructor(private readonly repo: PartRepositoryPort) {}
 
   async execute(id: number, input: UpdatePartInput): Promise<PartDomain> {
-    return this.repo.update(id, input)
+    return await this.repo.update(id, input)
   }
 }

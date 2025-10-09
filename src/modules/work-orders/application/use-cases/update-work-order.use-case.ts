@@ -27,7 +27,6 @@ export class UpdateWorkOrderUseCase {
     }
 
     if (dto.parts) {
-      // First remove then add parts
       await this.workOrderRepository.removeWorkOrderParts(id)
       for (const part of dto.parts) {
         const partData = await this.findPartByIdUseCase.execute(part.partId)
