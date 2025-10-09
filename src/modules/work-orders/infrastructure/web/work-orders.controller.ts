@@ -33,6 +33,7 @@ import { GetCurrentUserId } from '@/common/decorators/get-current-user-id.decora
 import { WorkOrderFilterDto } from './dto/work-order-filter.dto'
 import { UpdateWorkOrderStatusDto } from './dto/update-work-order-status.dto'
 import { Public } from '@/common/decorators'
+import { RejectHashViewUseCase } from '../../application/use-cases/reject-hash-view.use-case'
 
 @ApiTags('work-orders')
 @ApiBearerAuth('Bearer')
@@ -48,6 +49,7 @@ export class WorkOrdersController {
     private readonly updateStatusUseCase: UpdateWorkOrderStatusUseCase,
     private readonly findByHashViewUseCase: FindWorkOrderByHashViewUseCase,
     private readonly approveHashViewUseCase: ApproveHashViewUseCase,
+    private readonly rejectHashViewUseCase: RejectHashViewUseCase,
   ) {}
 
   @Post()
@@ -59,7 +61,9 @@ export class WorkOrdersController {
   create(
     @Body() createWorkOrderDto: CreateWorkOrderDto,
     @GetCurrentUserId() userId: number,
-  ) {
+  ): Promise<{
+    protocol: string
+  }> {
     return this.createWorkOrderUseCase.execute(createWorkOrderDto, userId)
   }
 
@@ -174,9 +178,9 @@ export class WorkOrdersController {
   }
 
   @Public()
-  @Get('/approve/:hashView')
+  @Patch('/approve/:hashView')
   @ApiOperation({
-    summary: 'Aprovar ordem de serviço por hash de visualização',
+    summary: 'Aprovar ordem de serviço por hash de visualização (Apenas',
   })
   @ApiParam({
     name: 'hashView',
@@ -185,5 +189,19 @@ export class WorkOrdersController {
   })
   approveHashView(@Param('hashView') hashView: string) {
     return this.approveHashViewUseCase.execute(hashView)
+  }
+
+  @Public()
+  @Patch('/reject/:hashView')
+  @ApiOperation({
+    summary: 'Rejeitar ordem de serviço por hash de visualização (Apenas',
+  })
+  @ApiParam({
+    name: 'hashView',
+    description: 'Hash de visualização da ordem de serviço',
+    example: '1234567890',
+  })
+  rejectHashView(@Param('hashView') hashView: string) {
+    return this.rejectHashViewUseCase.execute(hashView)
   }
 }

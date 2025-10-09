@@ -3,6 +3,7 @@ import { PartRepositoryPort } from '../../domain/repositories/part.repository.po
 import { CreatePartInput } from '../../domain/interfaces/create-part.input.interface'
 import { PartDomain } from '../../domain/entities/part.entity'
 import { CustomException } from '@/common/exceptions/customException'
+import { ErrorMessages } from '@/common/constants/errorMessages'
 
 @Injectable()
 export class CreatePartUseCase {
@@ -11,8 +12,8 @@ export class CreatePartUseCase {
   async execute(input: CreatePartInput): Promise<PartDomain> {
     const exists = await this.repo.exists(input.name)
     if (exists.exists) {
-      throw new CustomException('nome já está sendo usado')
+      throw new CustomException(ErrorMessages.PART.ALREADY_EXISTS(input.name))
     }
-    return this.repo.create(input)
+    return await this.repo.create(input)
   }
 }

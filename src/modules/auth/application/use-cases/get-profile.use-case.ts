@@ -10,6 +10,13 @@ export class GetProfileUseCase {
     if (!user) {
       throw new BadRequestException('Usuário não encontrado')
     }
-    return user
+    return {
+      id: user.id,
+      name: user.name,
+      email: user.email,
+      role: user.role,
+      createdAt: user.createdAt,
+      updatedAt: user.updatedAt,
+    }
   }
 }

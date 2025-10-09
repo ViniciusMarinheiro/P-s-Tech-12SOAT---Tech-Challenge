@@ -14,6 +14,6 @@ export class FindPartByIdUseCase {
     if (!part) {
       throw new CustomException(ErrorMessages.PART.NOT_FOUND)
     }
-    return { ...part, unitPrice: convertToMoney(part.unitPrice) }
+    return part
   }
 }

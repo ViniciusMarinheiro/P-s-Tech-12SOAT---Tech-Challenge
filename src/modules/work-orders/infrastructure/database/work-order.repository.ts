@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common'
 import { InjectRepository } from '@nestjs/typeorm'
-import { Repository, DataSource, In, Like } from 'typeorm'
+import { Repository, DataSource, In, Like, Not } from 'typeorm'
 import { WorkOrder } from './work-order.entity'
 import { WorkOrderStatusEnum } from '../../domain/enums/work-order-status.enum'
 import { WorkOrderService } from './work-order-service.entity'
@@ -13,11 +13,11 @@ import { WorkOrderDomainMapper } from '../mappers/work-order.mapper'
 import { CustomException } from '@/common/exceptions/customException'
 import { ErrorMessages } from '@/common/constants/errorMessages'
 import { Part } from '@/modules/parts/infrastructure/database/part.entity'
-import { convertToMoney } from '@/common/utils/convert-to-money'
 import { WorkOrderFilterDto } from '../web/dto/work-order-filter.dto'
 import { generateUniqueHash } from '@/common/utils/generate-unique-hash.util'
-import { formatTimeToFinish } from '@/common/utils/format-time-to-finish'
-// moved to infrastructure/database; keep file for potential references if needed
+import { ProtocolGenerator } from '../../../../common/utils/protocol-generator.util'
+import { Max } from 'class-validator'
+
 @Injectable()
 export class WorkOrderRepository extends WorkOrderRepositoryPort {
   private readonly workOrderRelations = [
@@ -47,6 +47,11 @@ export class WorkOrderRepository extends WorkOrderRepositoryPort {
     totalAmount: number,
   ): Promise<DomainWorkOrder> {
     return await this.dataSource.transaction(async (manager) => {
+      const workOrderLastId = await manager.find(WorkOrder, {
+        order: { id: 'DESC' },
+        take: 1,
+      })
+
       const workOrder = manager.create(WorkOrder, {
         customerId: createWorkOrderDto.customerId,
         vehicleId: createWorkOrderDto.vehicleId,
@@ -54,6 +59,9 @@ export class WorkOrderRepository extends WorkOrderRepositoryPort {
         totalAmount,
         userId: createWorkOrderDto.userId,
         hashView: generateUniqueHash(20),
+        protocol: ProtocolGenerator.generateProtocol(
+          workOrderLastId[0] ? workOrderLastId[0].id + 1 : 1,
+        ),
       })
 
       const savedWorkOrder = await manager.save(WorkOrder, workOrder)
@@ -143,7 +151,11 @@ export class WorkOrderRepository extends WorkOrderRepositoryPort {
         )
       }
 
-      return WorkOrderDomainMapper.toDomain(savedWorkOrder)
+      const updatedWorkOrder = await manager.findOne(WorkOrder, {
+        where: { id: savedWorkOrder.id },
+      })
+
+      return WorkOrderDomainMapper.toDomain(updatedWorkOrder!)
     })
   }
 
@@ -233,7 +245,6 @@ export class WorkOrderRepository extends WorkOrderRepositoryPort {
     const { id, status, customerId, vehicleId, customerDocument } =
       workOrderFilterDto
 
-    // Construir where dinamicamente baseado nos filtros preenchidos
     const whereConditions: any = {}
 
     if (id !== undefined && id !== null) {
@@ -252,18 +263,41 @@ export class WorkOrderRepository extends WorkOrderRepositoryPort {
       whereConditions.vehicleId = vehicleId
     }
 
-    // Se há filtro por documento do cliente, usar query builder para join
     if (customerDocument && customerDocument.trim() !== '') {
       whereConditions.customer = {
         documentNumber: Like(`%${customerDocument}%`),
       }
     }
 
-    // Se não há filtro por documento, usar find simples
-    const workOrders = await this.workOrderRepository.find({
-      where: Object.keys(whereConditions).length > 0 ? whereConditions : {},
-      relations: this.workOrderRelations,
-    })
+    if (status === undefined || status === null) {
+      whereConditions.status = Not(
+        In([WorkOrderStatusEnum.FINISHED, WorkOrderStatusEnum.DELIVERED]),
+      )
+    }
+
+    const workOrders = await this.workOrderRepository
+      .createQueryBuilder('workOrder')
+      .leftJoinAndSelect('workOrder.customer', 'customer')
+      .leftJoinAndSelect('workOrder.vehicle', 'vehicle')
+      .leftJoinAndSelect('workOrder.user', 'user')
+      .leftJoinAndSelect('workOrder.workOrderServices', 'workOrderServices')
+      .leftJoinAndSelect('workOrderServices.service', 'service')
+      .leftJoinAndSelect('workOrder.workOrderParts', 'workOrderParts')
+      .leftJoinAndSelect('workOrderParts.part', 'part')
+      .where(whereConditions)
+      .orderBy(
+        `CASE 
+          WHEN workOrder.status = '${WorkOrderStatusEnum.IN_PROGRESS}' THEN 1
+          WHEN workOrder.status = '${WorkOrderStatusEnum.AWAITING_APPROVAL}' THEN 2
+          WHEN workOrder.status = '${WorkOrderStatusEnum.DIAGNOSING}' THEN 3
+          WHEN workOrder.status = '${WorkOrderStatusEnum.RECEIVED}' THEN 4
+          WHEN workOrder.status = '${WorkOrderStatusEnum.REJECTED}' THEN 5
+          ELSE 999
+        END`,
+        'ASC',
+      )
+      .addOrderBy('workOrder.createdAt', 'ASC')
+      .getMany()
 
     return workOrders.map((wo) => WorkOrderDomainMapper.withRelations(wo))
   }

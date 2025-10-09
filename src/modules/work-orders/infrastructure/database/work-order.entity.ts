@@ -28,6 +28,9 @@ export class WorkOrder {
   @Column({ type: 'varchar', name: 'hash_view', nullable: true })
   hashView: string
 
+  @Column({ type: 'varchar', name: 'protocol', unique: true })
+  protocol: string
+
   @Column({
     type: 'simple-enum',
     enum: WorkOrderStatusEnum,
