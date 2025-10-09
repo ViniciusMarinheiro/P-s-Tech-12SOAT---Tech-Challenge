@@ -15,6 +15,7 @@ import { UpdateWorkOrderUseCase } from '../application/use-cases/update-work-ord
 import { UpdateWorkOrderStatusUseCase } from '../application/use-cases/update-work-order-status.use-case'
 import { FindWorkOrderByHashViewUseCase } from '../application/use-cases/find-work-orders-by-hash-view.use-case'
 import { ApproveHashViewUseCase } from '../application/use-cases/approve-hash-view.use-case'
+import { RejectHashViewUseCase } from '../application/use-cases/reject-hash-view.use-case'
 
 describe('WorkOrdersController', () => {
   let controller: WorkOrdersController
@@ -27,6 +28,7 @@ describe('WorkOrdersController', () => {
   let updateStatusUseCase: jest.Mocked<UpdateWorkOrderStatusUseCase>
   let findByHashUseCase: jest.Mocked<FindWorkOrderByHashViewUseCase>
   let approveHashUseCase: jest.Mocked<ApproveHashViewUseCase>
+  let rejectHashUseCase: jest.Mocked<RejectHashViewUseCase>
 
   const baseWorkOrder: WorkOrderResponseDto = {
     id: 1,
@@ -63,6 +65,7 @@ describe('WorkOrdersController', () => {
           useValue: { execute: jest.fn() },
         },
         { provide: ApproveHashViewUseCase, useValue: { execute: jest.fn() } },
+        { provide: RejectHashViewUseCase, useValue: { execute: jest.fn() } },
       ],
     }).compile()
 
@@ -76,6 +79,7 @@ describe('WorkOrdersController', () => {
     updateStatusUseCase = module.get(UpdateWorkOrderStatusUseCase)
     findByHashUseCase = module.get(FindWorkOrderByHashViewUseCase)
     approveHashUseCase = module.get(ApproveHashViewUseCase)
+    rejectHashUseCase = module.get(RejectHashViewUseCase)
   })
 
   describe('create', () => {

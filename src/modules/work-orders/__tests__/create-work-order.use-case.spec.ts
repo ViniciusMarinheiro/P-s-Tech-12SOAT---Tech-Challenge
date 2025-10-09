@@ -50,11 +50,15 @@ describe('CreateWorkOrderUseCase', () => {
       parts: [{ partId: 2, quantity: 3 }],
     }
 
-    await useCase.execute(dto, 99)
+    const mockWorkOrder = { id: 1, protocol: 'WO-2024-001' }
+    ;(repo.create as jest.Mock).mockResolvedValue(mockWorkOrder)
+
+    const result = await useCase.execute(dto, 99)
 
     expect(repo.create).toHaveBeenCalledWith(
       expect.objectContaining({ ...dto, userId: 99 }),
       26000,
     )
+    expect(result).toEqual({ protocol: 'WO-2024-001' })
   })
 })
