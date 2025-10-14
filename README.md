@@ -82,7 +82,9 @@ Desenvolver a **primeira versão (MVP)** do back-end do sistema, com foco em:
 - **DDD (Domain-Driven Design)**
 - **Jest** (testes)
 - **JWT** (segurança)
+---
 
+## 🛠️ Link do Vídeo de Apresentação: https://www.youtube.com/watch?v=kN_ekXg5YEw
 ---
 
 ## 🛠️ Como Executar o Projeto com Docker Compose
