@@ -1,7 +1,7 @@
 import { JwtStrategy } from './jwt.strategy'
 import { EnvConfigService } from '../service/env/env-config.service'
-import { JwtPayload } from '../../modules/auth/interfaces/auth-response.interface'
-import { UserRole } from '../../modules/auth/enums/user-role.enum'
+import { JwtPayload } from '../../modules/auth/domain/interfaces/auth-response.interface'
+import { UserRole } from '../../modules/auth/domain/enums/user-role.enum'
 
 describe('JwtStrategy', () => {
   let strategy: JwtStrategy

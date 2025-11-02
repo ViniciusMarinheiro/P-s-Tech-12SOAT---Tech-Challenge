@@ -16,7 +16,13 @@ const config: Config = {
   },
 
   // cobre só arquivos de src/ como antes (ajuste se quiser)
-  collectCoverageFrom: ['src/**/*.(t|j)s'],
+  collectCoverageFrom: [
+    'src/**/*.(t|j)s',
+    '!src/**/*.spec.ts',      // Exclui arquivos de teste unitário
+    '!src/**/*.test.ts',      // Exclui arquivos de teste
+    '!src/**/*.e2e-spec.ts', // Exclui testes e2e
+    '!src/__tests__/**/*',    // Exclui todo o diretório de testes
+  ],
 
   // põe em coverage/ na raiz (equivalente ao "../coverage" quando rootDir era "src")
   coverageDirectory: '<rootDir>/coverage',
@@ -32,14 +38,17 @@ const config: Config = {
     '.enum.ts$',         // Ignora arquivos de enum
     'index.ts$',         // Ignora arquivos de index'
     'repository.ts$',    // Ignora arquivos de repositório
-    'src/config/', // Ignora arquivos de configuração
-    'src/migrations/', // Ignora migrações do TypeORM
-    'src/seeds/', // Ignora seeds do TypeORM
+    'src/config/',       // Ignora arquivos de configuração
+    'src/migrations/',   // Ignora migrações do TypeORM
+    'src/seeds/',        // Ignora seeds do TypeORM
     'src/common/constants',     // Ignora arquivos de constantes
-    'src/common/decorators', // Ignora decorators
-    'src/common/exceptions', // Ignora exceptions
-    'src/common/service', // Ignora serviços comuns
+    'src/common/decorators',    // Ignora decorators
+    'src/common/exceptions',    // Ignora exceptions
+    'src/common/service',       // Ignora serviços comuns
     'src/common/guards/jwt-auth.guard.ts', // Ignora o guard de autenticação JWT
+    '.*\\.spec\\.ts$',          // Backup: ignora qualquer arquivo .spec.ts
+    '.*\\.test\\.ts$',          // Backup: ignora qualquer arquivo .test.ts
+    '.*\\.e2e-spec\\.ts$',      // Backup: ignora qualquer arquivo .e2e-spec.ts
   ],
 
   // mapeia o alias "@/..." -> "src/..."

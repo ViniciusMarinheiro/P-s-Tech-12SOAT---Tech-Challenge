@@ -38,17 +38,20 @@ async function bootstrap() {
     )
     .build()
 
+  const documentationPrefix = envConfigService.get('DOCUMENTATION_PREFIX')
+
   const document = SwaggerModule.createDocument(app, config)
-  SwaggerModule.setup(
-    envConfigService.get('DOCUMENTATION_PREFIX') + '/documentation',
-    app,
-    document,
-    {
-      swaggerOptions: {
-        persistAuthorization: true,
-      },
+  SwaggerModule.setup(documentationPrefix + '/documentation', app, document, {
+    swaggerOptions: {
+      persistAuthorization: true,
     },
-  )
+  })
+
+  app
+    .getHttpAdapter()
+    .get(`/${documentationPrefix}/documentation/json`, (req, res) => {
+      res.send(document)
+    })
 
   await app.listen(port)
 }

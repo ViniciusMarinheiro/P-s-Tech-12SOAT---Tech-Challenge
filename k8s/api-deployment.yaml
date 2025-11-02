@@ -14,9 +14,16 @@ spec:
     spec:
       containers:
       - name: oficina-api
-        image: marinheirovinicius/oficina-api:latest  
+        image: acrfst.azurecr.io/ps-tech-api:43a68820b44bc16172b02c5b5b992f0fb91987b5
         ports:
         - containerPort: 3333
+        resources:
+          requests:
+            cpu: "250m"      
+            memory: "256Mi"
+          limits:
+            cpu: "500m"     
+            memory: "512Mi" 
         envFrom:
         - configMapRef:
             name: oficina-config
@@ -24,13 +31,13 @@ spec:
             name: oficina-secrets
         livenessProbe:
           httpGet:
-            path: /api/v1/oficina/status
+            path: /api/v1/oficina
             port: 3333
           initialDelaySeconds: 60
           periodSeconds: 30
         readinessProbe:
           httpGet:
-            path: /api/v1/oficina/status
+            path: /api/v1/oficina
             port: 3333
           initialDelaySeconds: 30
           periodSeconds: 10

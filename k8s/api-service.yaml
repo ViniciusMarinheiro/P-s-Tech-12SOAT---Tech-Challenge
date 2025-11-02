@@ -3,9 +3,10 @@ kind: Service
 metadata:
   name: oficina-api
 spec:
-  type: LoadBalancer  
   selector:
     app: oficina-api
   ports:
-  - port: 80
-    targetPort: 3333
+    - protocol: TCP
+      port: 80
+      targetPort: 3333
+  type: ClusterIP
