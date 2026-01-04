@@ -253,7 +253,9 @@ O vídeo demonstra os seguintes pontos:
 - **DDD (Domain-Driven Design)**
 - **Jest** (testes)
 - **JWT** (segurança)
+---
 
+## 🛠️ Link do Vídeo de Apresentação: https://www.youtube.com/watch?v=kN_ekXg5YEw
 ---
 
 ## 🛠️ Como Executar o Projeto com Docker Compose
@@ -381,4 +383,4 @@ Nest is an MIT-licensed open source project. It can grow thanks to the sponsors 
 ## License
 
 Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
->>>>>>> 5b66bfbbd308702025668032bb574e2a2ea33638
+
