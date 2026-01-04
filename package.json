@@ -25,6 +25,7 @@
     "seed": "ts-node -r tsconfig-paths/register src/config/database/seeds/seed.ts"
   },
   "dependencies": {
+    "newrelic": "latest",
     "@nestjs/bullmq": "^11.0.3",
     "@nestjs/common": "^11.0.1",
     "@nestjs/config": "^4.0.2",
