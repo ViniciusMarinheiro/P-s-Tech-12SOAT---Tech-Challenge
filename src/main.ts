@@ -1,13 +1,20 @@
 require('newrelic')
 import { NestFactory } from '@nestjs/core'
 import { AppModule } from './app.module'
-import { ValidationPipe } from '@nestjs/common'
+import { Logger, ValidationPipe } from '@nestjs/common'
 import { EnvConfigService } from '@/common/service/env/env-config.service'
 import helmet from 'helmet'
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger'
+import { CustomLogger } from './common/log/custom.logger'
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule)
+  const app = await NestFactory.create(AppModule, {
+    logger: ['error', 'warn', 'debug', 'log', 'verbose'],
+  })
+
+  app.useLogger(app.get(CustomLogger))
+
+  const logger = new Logger('MAIN')
 
   app.enableCors({
     origin: '*',
@@ -55,5 +62,7 @@ async function bootstrap() {
     })
 
   await app.listen(port)
+
+  logger.log(`HTTP server started on port ${port}`)
 }
 bootstrap()

@@ -18,8 +18,11 @@ import { WorkOrdersModule } from './modules/work-orders/work-orders.module'
 import { BullModule } from '@nestjs/bullmq'
 import { EmailProviderModule } from './providers/email/email.provider.module'
 import { RolesGuard } from './common/guards'
+import { LoggerModule } from 'nestjs-pino'
+import { CustomLogger } from './common/log/custom.logger'
 
 const isTest = process.env.NODE_ENV === 'test'
+const isDevelopment = process.env.NODE_ENV !== 'production' && !isTest
 
 @Module({
   imports: [
@@ -59,6 +62,22 @@ const isTest = process.env.NODE_ENV === 'test'
     ServicesModule,
     PartsModule,
     WorkOrdersModule,
+    LoggerModule.forRoot({
+      pinoHttp: {
+        level: 'trace',
+        ...(isDevelopment && {
+          transport: {
+            target: 'pino-pretty',
+            options: {
+              colorize: true,
+              singleLine: false,
+              translateTime: 'SYS:standard',
+              ignore: 'pid,hostname',
+            },
+          },
+        }),
+      },
+    }),
   ],
   controllers: [AppController],
   providers: [
@@ -72,7 +91,8 @@ const isTest = process.env.NODE_ENV === 'test'
       provide: APP_GUARD,
       useClass: RolesGuard,
     },
+    CustomLogger,
   ],
-  exports: [EnvConfigService],
+  exports: [EnvConfigService, CustomLogger],
 })
 export class AppModule {}
