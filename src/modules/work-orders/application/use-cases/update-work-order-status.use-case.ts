@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common'
+import { Injectable, Logger } from '@nestjs/common'
 import { WorkOrderStatusEnum } from '../../domain/enums/work-order-status.enum'
 import { WorkOrderRepositoryPort } from '../../domain/repositories/work-order.repository.port'
 import { SendEmailQueueProvider } from '@/providers/email/job/send-email-queue/send-email-queue.provider'
@@ -8,6 +8,8 @@ import { EmailTemplatesUtil } from '@/common/utils/email-templates.util'
 
 @Injectable()
 export class UpdateWorkOrderStatusUseCase {
+  private readonly logger = new Logger(UpdateWorkOrderStatusUseCase.name)
+
   constructor(
     private readonly workOrderRepository: WorkOrderRepositoryPort,
     private readonly findByIdUseCase: FindWorkOrderByIdUseCase,
@@ -15,6 +17,7 @@ export class UpdateWorkOrderStatusUseCase {
   ) {}
 
   async execute(id: number, status: WorkOrderStatusEnum) {
+    this.logger.log('Atualizando status da ordem de serviço', { id, status })
     const workOrder = await this.findByIdUseCase.execute(id)
 
     this.validateStatusTransition(workOrder.status, status)
@@ -67,6 +70,7 @@ export class UpdateWorkOrderStatusUseCase {
     }
 
     await this.workOrderRepository.updateStatus(id, status)
+    this.logger.log('Status da ordem de serviço atualizado com sucesso')
   }
 
   private validateStatusTransition(

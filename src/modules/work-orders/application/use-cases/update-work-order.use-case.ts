@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common'
+import { Injectable, Logger } from '@nestjs/common'
 import { UpdateWorkOrderDto } from '../../infrastructure/web/dto/update-work-order.dto'
 import { WorkOrderRepositoryPort } from '../../domain/repositories/work-order.repository.port'
 import { CustomException } from '@/common/exceptions/customException'
@@ -10,6 +10,8 @@ import { WorkOrderStatusEnum } from '../../domain/enums/work-order-status.enum'
 
 @Injectable()
 export class UpdateWorkOrderUseCase {
+  private readonly logger = new Logger(UpdateWorkOrderUseCase.name)
+
   constructor(
     private readonly workOrderRepository: WorkOrderRepositoryPort,
     private readonly findServiceByIdUseCase: FindServiceByIdUseCase,
@@ -18,6 +20,7 @@ export class UpdateWorkOrderUseCase {
   ) {}
 
   async execute(id: number, dto: UpdateWorkOrderDto) {
+    this.logger.log('Atualizando ordem de serviço', { id, ...dto })
     const currentWorkOrder = await this.findByIdUseCase.execute(id)
 
     if (currentWorkOrder.status !== WorkOrderStatusEnum.RECEIVED) {
@@ -69,6 +72,8 @@ export class UpdateWorkOrderUseCase {
     const totalAmount = servicesTotal + partsTotal
 
     await this.workOrderRepository.update(id, { ...dto, totalAmount } as any)
-    return this.findByIdUseCase.execute(id)
+    const result = await this.findByIdUseCase.execute(id)
+    this.logger.log('Ordem de serviço atualizada com sucesso')
+    return result
   }
 }

@@ -18,11 +18,21 @@ import { WorkOrdersModule } from './modules/work-orders/work-orders.module'
 import { BullModule } from '@nestjs/bullmq'
 import { EmailProviderModule } from './providers/email/email.provider.module'
 import { RolesGuard } from './common/guards'
-import { LoggerModule } from 'nestjs-pino'
+import { LoggerModule as PinoLoggerModule } from 'nestjs-pino'
+import * as newrelic from 'newrelic'
 import { CustomLogger } from './common/log/custom.logger'
 
 const isTest = process.env.NODE_ENV === 'test'
 const isDevelopment = process.env.NODE_ENV !== 'production' && !isTest
+
+// Função para enriquecer logs com metadados do New Relic
+const getNewRelicMetadata = () => {
+  try {
+    return newrelic.getLinkingMetadata()
+  } catch (error) {
+    return {}
+  }
+}
 
 @Module({
   imports: [
@@ -62,9 +72,32 @@ const isDevelopment = process.env.NODE_ENV !== 'production' && !isTest
     ServicesModule,
     PartsModule,
     WorkOrdersModule,
-    LoggerModule.forRoot({
+    PinoLoggerModule.forRoot({
       pinoHttp: {
         level: 'trace',
+        mixin: () => {
+          return getNewRelicMetadata()
+        },
+        serializers: {
+          req: (req) => ({
+            id: req.id,
+            method: req.method,
+            url: req.url,
+            query: req.query,
+            params: req.params,
+          }),
+          res: (res) => ({
+            statusCode: res.statusCode,
+          }),
+        },
+        customLogLevel: (req, res, err) => {
+          if (res.statusCode >= 500) {
+            return 'error'
+          } else if (res.statusCode >= 400) {
+            return 'warn'
+          }
+          return 'info'
+        },
         ...(isDevelopment && {
           transport: {
             target: 'pino-pretty',
@@ -78,6 +111,7 @@ const isDevelopment = process.env.NODE_ENV !== 'production' && !isTest
         }),
       },
     }),
+    CustomLogger,
   ],
   controllers: [AppController],
   providers: [
@@ -91,7 +125,6 @@ const isDevelopment = process.env.NODE_ENV !== 'production' && !isTest
       provide: APP_GUARD,
       useClass: RolesGuard,
     },
-    CustomLogger,
   ],
   exports: [EnvConfigService, CustomLogger],
 })

@@ -17,9 +17,12 @@ export class AppController {
   @Public()
   @ApiOperation({ summary: 'Endpoint público de teste' })
   @ApiResponse({ status: 200, description: 'Retorna mensagem de boas-vindas' })
-  @Get()
-  getHello(): string {
-    return this.appService.getHello()
+  @Get('health')
+  getHealth(): { status: string; timestamp: string } {
+    return {
+      status: 'API funcionando corretamente',
+      timestamp: new Date().toISOString(),
+    }
   }
 
   @ApiOperation({ summary: 'Endpoint protegido de teste' })

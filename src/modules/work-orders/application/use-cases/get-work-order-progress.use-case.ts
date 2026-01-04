@@ -1,16 +1,19 @@
-import { Injectable } from '@nestjs/common'
+import { Injectable, Logger } from '@nestjs/common'
 import { WorkOrderRepositoryPort } from '../../domain/repositories/work-order.repository.port'
 import { FindWorkOrderByIdUseCase } from './find-work-order-by-id.use-case'
 import { WorkOrderStatusEnum } from '../../domain/enums/work-order-status.enum'
 
 @Injectable()
 export class GetWorkOrderProgressUseCase {
+  private readonly logger = new Logger(GetWorkOrderProgressUseCase.name)
+
   constructor(
     private readonly workOrderRepository: WorkOrderRepositoryPort,
     private readonly findByIdUseCase: FindWorkOrderByIdUseCase,
   ) {}
 
   async execute(id: number) {
+    this.logger.log('Buscando progresso da ordem de serviço', { id })
     const workOrder = await this.findByIdUseCase.execute(id)
 
     const statusProgress = {

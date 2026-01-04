@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common'
+import { Injectable, Logger } from '@nestjs/common'
 import { WorkOrderRepositoryPort } from '../../domain/repositories/work-order.repository.port'
 import { FindWorkOrderByHashViewUseCase } from './find-work-orders-by-hash-view.use-case'
 import { WorkOrderStatusEnum } from '../../domain/enums/work-order-status.enum'
@@ -8,6 +8,8 @@ import { EmailTemplatesUtil } from '@/common/utils/email-templates.util'
 
 @Injectable()
 export class ApproveHashViewUseCase {
+  private readonly logger = new Logger(ApproveHashViewUseCase.name)
+
   constructor(
     private readonly workOrderRepository: WorkOrderRepositoryPort,
     private readonly findByHashViewUseCase: FindWorkOrderByHashViewUseCase,
@@ -15,6 +17,7 @@ export class ApproveHashViewUseCase {
   ) {}
 
   async execute(hashView: string) {
+    this.logger.log('Aprovando ordem de serviço por hash view', { hashView })
     const workOrder = await this.findByHashViewUseCase.execute(hashView)
     if (!workOrder) {
       throw new CustomException(
@@ -49,6 +52,7 @@ export class ApproveHashViewUseCase {
           body: EmailTemplatesUtil.generateInProgressUserTemplate(templateData),
         }),
       ])
+      this.logger.log('Ordem de serviço aprovada com sucesso')
     } catch (error) {
       throw new CustomException(
         `Erro ao aprovar ordem de serviço, você já aprovou está ordem de serviço`,

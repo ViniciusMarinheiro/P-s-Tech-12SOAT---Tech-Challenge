@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common'
+import { Injectable, Logger } from '@nestjs/common'
 import { CreateWorkOrderDto } from '../../infrastructure/web/dto/create-work-order.dto'
 import { WorkOrderRepositoryPort } from '../../domain/repositories/work-order.repository.port'
 import { FindServiceByIdUseCase } from '@/modules/services/application/use-cases/find-service-by-id.use-case'
@@ -11,6 +11,8 @@ import { ProtocolGenerator } from '../../../../common/utils/protocol-generator.u
 
 @Injectable()
 export class CreateWorkOrderUseCase {
+  private readonly logger = new Logger(CreateWorkOrderUseCase.name)
+
   constructor(
     private readonly workOrderRepository: WorkOrderRepositoryPort,
     private readonly findVehicleByIdUseCase: FindVehicleByIdUseCase,
@@ -25,6 +27,7 @@ export class CreateWorkOrderUseCase {
   ): Promise<{
     protocol: string
   }> {
+    this.logger.log('Criando ordem de serviço', { ...dto, userId })
     const customer = await this.findCustomerByIdUseCase.execute(dto.customerId)
     const vehicle = await this.findVehicleByIdUseCase.execute(dto.vehicleId)
     if (!customer) {
@@ -66,6 +69,7 @@ export class CreateWorkOrderUseCase {
       totalAmount,
     )
 
+    this.logger.log('Ordem de serviço criada com sucesso')
     return { protocol: workOrder.protocol }
   }
 }

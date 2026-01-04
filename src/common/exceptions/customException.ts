@@ -1,6 +1,8 @@
-import { HttpException, HttpStatus } from '@nestjs/common'
+import { HttpException, HttpStatus, Logger } from '@nestjs/common'
 
 export class CustomException extends HttpException {
+  private readonly logger = new Logger(CustomException.name)
+
   constructor(message: string, status?: HttpStatus)
   constructor(message: () => string, status?: HttpStatus)
   constructor(
@@ -17,5 +19,10 @@ export class CustomException extends HttpException {
       },
       status,
     )
+    this.logger.warn(finalMessage, {
+      status,
+      statusCode: status,
+      timestamp: new Date().toISOString(),
+    })
   }
 }
